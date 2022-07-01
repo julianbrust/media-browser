@@ -12,6 +12,11 @@ func main() {
 	//TODO: clean up logging
 	file := "/tmp/media-browser.log"
 
+	err := os.Remove(file)
+	if err != nil {
+		panic(err)
+	}
+
 	logFile, err := os.OpenFile(file, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		log.Panic(err)

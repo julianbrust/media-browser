@@ -11,13 +11,15 @@ func (b Browser) showSelection() error {
 	b.CLI.Screen = s
 	b.CLI.Style = defStyle
 
-	text := []string{
+	header := []string{
 		"This is the top layer of the app",
 		"You selected:",
 	}
-	cli.DrawText(b.CLI.Screen, 0, 0, 100, 100, b.CLI.Style, text)
 
-	b.drawSelection()
+	text := getSelection(b.Show, header)
+
+	dim := cli.GetDimensions(s.Size())
+	cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 
 	for {
 		s.Show()
@@ -43,16 +45,15 @@ func (b Browser) showSelection() error {
 	}
 }
 
-func (b Browser) drawSelection() {
-	showName := b.Show.Details.Name
-	seasonName := b.Show.Season.Details.Name
-	epIndex := b.Show.Season.Episode.Index
-	epDetails := b.Show.Season.Details.Episodes[epIndex]
+func getSelection(show Show, header []string) []string {
+	showName := show.Details.Name
+	seasonName := show.Season.Details.Name
+	epDetails := show.Season.Episode.Details
 
-	text := []string{
-		showName + ": " + seasonName + ": " + epDetails.Name,
-		"Description: " + epDetails.Overview,
-	}
+	text := header
 
-	cli.DrawText(b.CLI.Screen, 0, 2, 100, 100, b.CLI.Style, text)
+	text = append(text, showName+": "+seasonName+": "+epDetails.Name)
+	text = append(text, "Description: "+epDetails.Overview)
+
+	return text
 }

@@ -9,7 +9,7 @@ type Queries struct {
 	ApiKey       string
 	AdultContent bool
 	Language     string
-	Page         int32
+	Page         int
 	Query        string
 }
 
@@ -21,8 +21,8 @@ type Queries struct {
 
 type ShowSelection struct {
 	Details      ShowDetail
-	SeasonIndex  int32
-	EpisodeIndex int32
+	SeasonIndex  int
+	EpisodeIndex int
 }
 
 type Show struct {
@@ -31,44 +31,44 @@ type Show struct {
 }
 
 type ShowResult struct {
-	ID   int32  `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
 type ShowDetail struct {
-	ID               int32              `json:"id"`
+	ID               int                `json:"id"`
 	Name             string             `json:"name"`
-	NumberOfEpisodes int32              `json:"number_of_episodes"`
-	NumberOfSeasons  int32              `json:"number_of_seasons"`
+	NumberOfEpisodes int                `json:"number_of_episodes"`
+	NumberOfSeasons  int                `json:"number_of_seasons"`
 	Seasons          []ShowSeasonDetail `json:"seasons"`
 }
 
 type ShowSeasonDetail struct {
-	ID           int32  `json:"id"`
+	ID           int    `json:"id"`
 	Name         string `json:"name"`
 	Overview     string `json:"overview"`
-	EpisodeCount int32  `json:"episode_count"`
-	SeasonNumber int32  `json:"season_number"`
+	EpisodeCount int    `json:"episode_count"`
+	SeasonNumber int    `json:"season_number"`
 }
 
 type ShowSeason struct {
-	ID           int32         `json:"id"`
+	ID           int           `json:"id"`
 	Name         string        `json:"name"`
-	SeasonNumber int32         `json:"season_number"`
+	SeasonNumber int           `json:"season_number"`
 	Episodes     []ShowEpisode `json:"episodes"`
 	Overview     string        `json:"overview"`
 }
 
 type ShowEpisode struct {
-	ID       int32  `json:"id"`
+	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	Overview string `json:"overview"`
 }
 
 type ResBody struct {
-	Page         int32 `json:"page"`
-	TotalPages   int32 `json:"total_pages"`
-	TotalResults int32 `json:"total_results"`
+	Page         int `json:"page"`
+	TotalPages   int `json:"total_pages"`
+	TotalResults int `json:"total_results"`
 }
 
 func GetTVLatest(queries Queries) (*http.Response, error) {
@@ -97,7 +97,7 @@ func SearchTV(queries Queries) (*http.Response, error) {
 	q.Add("api_key", queries.ApiKey)
 	q.Add("language", queries.Language)
 	q.Add("include_adult", strconv.FormatBool(queries.AdultContent))
-	q.Add("page", string(queries.Page))
+	q.Add("page", strconv.FormatInt(int64(queries.Page), 10))
 	q.Add("query", queries.Query)
 	req.URL.RawQuery = q.Encode()
 
@@ -109,7 +109,7 @@ func SearchTV(queries Queries) (*http.Response, error) {
 	return res, nil
 }
 
-func GetTVShow(id int32, queries Queries) (*http.Response, error) {
+func GetTVShow(id int, queries Queries) (*http.Response, error) {
 	client := &http.Client{}
 
 	addr := "https://api.themoviedb.org/3/tv/" + strconv.FormatInt(int64(id), 10)
@@ -128,7 +128,7 @@ func GetTVShow(id int32, queries Queries) (*http.Response, error) {
 	return res, nil
 }
 
-func GetTVShowSeason(id int32, season int32, queries Queries) (*http.Response, error) {
+func GetTVShowSeason(id int, season int, queries Queries) (*http.Response, error) {
 	client := &http.Client{}
 
 	addr := "https://api.themoviedb.org/3/tv/" + strconv.FormatInt(int64(id), 10) +

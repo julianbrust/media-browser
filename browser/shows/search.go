@@ -3,6 +3,7 @@ package shows
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/julianbrust/media-browser/cli"
+	"github.com/julianbrust/media-browser/tmdb"
 	"os"
 )
 
@@ -11,12 +12,16 @@ func (b Browser) showSearch() {
 	b.CLI.Screen = s
 	b.CLI.Style = defStyle
 
-	text := []string{
+	header := []string{
 		"This is the top layer of the app",
 		"Search TV shows:",
 		"> " + b.Query,
 	}
-	cli.DrawText(b.CLI.Screen, 0, 0, 100, 100, b.CLI.Style, text)
+
+	text := cli.BuildScreen(cli.Page{}, b.Show.Index, header, []cli.Content{}, false)
+
+	dim := cli.GetDimensions(s.Size())
+	cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 
 	for {
 		s.Show()
@@ -25,31 +30,33 @@ func (b Browser) showSearch() {
 
 		switch ev := ev.(type) {
 		case *tcell.EventResize:
-			s.Sync()
+			s.Clear()
+			dim = cli.GetDimensions(s.Size())
+			cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 		case *tcell.EventKey:
 			if ev.Key() == tcell.KeyEscape || ev.Key() == tcell.KeyCtrlC {
 				s.Fini()
 				os.Exit(0)
 			}
 			if ev.Key() == tcell.KeyEnter {
-				results, err := getShowResults(b.Config, b.Query)
-				if err != nil {
-					s.Fini()
-					b.showSearch()
-				}
-				b.Search = results
+				b.Search = []tmdb.Show{}
+				b.Search, b.Show.Page = getSearchResults(b, 1, 10)
 
 				s.Fini()
-				err = b.browseShows()
+				err := b.browseShows()
 				if err != nil {
 					s.Fini()
 					b.showSearch()
 				}
 			}
 			if ev.Key() == tcell.KeyRune {
+				s.Clear()
+
 				b.Query += string(ev.Rune())
-				text[2] = "> " + b.Query
-				cli.DrawText(b.CLI.Screen, 0, 0, 100, 100, b.CLI.Style, text)
+				header[2] = "> " + b.Query
+
+				text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, []cli.Content{}, false)
+				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 			}
 			if ev.Key() == tcell.KeyBackspace || ev.Key() == tcell.KeyBackspace2 {
 				s.Clear()
@@ -58,8 +65,10 @@ func (b Browser) showSearch() {
 				if inputTrim > 0 {
 					b.Query = b.Query[:inputTrim-1]
 				}
-				text[2] = "> " + b.Query
-				cli.DrawText(b.CLI.Screen, 0, 0, 100, 100, b.CLI.Style, text)
+				header[2] = "> " + b.Query
+
+				text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, []cli.Content{}, false)
+				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 			}
 		}
 	}

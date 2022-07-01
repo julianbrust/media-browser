@@ -6,9 +6,10 @@ import (
 	"github.com/julianbrust/media-browser/cli"
 	"github.com/julianbrust/media-browser/config"
 	"github.com/julianbrust/media-browser/tmdb"
+	"math"
 )
 
-func getSeason(conf config.Config, id int32, season int32) (tmdb.ShowSeason, error) {
+func getSeason(conf config.Config, id int, season int) (tmdb.ShowSeason, error) {
 	queries := tmdb.Queries{
 		ApiKey:   conf.Library.Auth.APIKey,
 		Language: conf.Library.Settings.Language,
@@ -35,13 +36,21 @@ func (b Browser) browseSeasons() error {
 	b.CLI.Screen = s
 	b.CLI.Style = defStyle
 
-	text := []string{
+	b.Show.Season.Page.Current = 1
+	b.Show.Season.Page.Results = 10
+
+	header := []string{
 		"This is the top layer of the app",
 		"Browse Seasons:",
 	}
-	cli.DrawText(b.CLI.Screen, 0, 0, 100, 100, b.CLI.Style, text)
 
-	b.drawSeasonResults()
+	b.Show.Season.Page = getSeasonResults(
+		b.Show.Season.Page, b.Show.Details.Seasons, b.Show.Season.Page.Current, b.Show.Season.Page.Results)
+
+	text := cli.BuildScreen(b.Show.Season.Page, b.Show.Season.Index, header, b.Show.Season.Page.Content, true)
+
+	dim := cli.GetDimensions(s.Size())
+	cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 
 	for {
 		s.Show()
@@ -50,7 +59,9 @@ func (b Browser) browseSeasons() error {
 
 		switch ev := ev.(type) {
 		case *tcell.EventResize:
-			s.Sync()
+			s.Clear()
+			dim = cli.GetDimensions(s.Size())
+			cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 		case *tcell.EventKey:
 			if ev.Key() == tcell.KeyEscape || ev.Key() == tcell.KeyCtrlC {
 				s.Fini()
@@ -60,7 +71,9 @@ func (b Browser) browseSeasons() error {
 				}
 			}
 			if ev.Key() == tcell.KeyEnter {
-				season, err := getSeason(b.Config, b.Show.Details.ID, b.Show.Season.Index)
+				currentSeasonIndex := getCurrentSeasonIndex(b.Show.Season, b.Show.Details.Seasons)
+
+				season, err := getSeason(b.Config, b.Show.Details.ID, currentSeasonIndex)
 				if err != nil {
 					s.Fini()
 					err := b.browseSeasons()
@@ -83,36 +96,93 @@ func (b Browser) browseSeasons() error {
 			}
 			if ev.Key() == tcell.KeyDown {
 				s.Clear()
-				text := []string{
-					"This is the top layer of the app",
-					"Browse Shows:",
+				if b.Show.Season.Index < len(b.Show.Season.Page.Content)-1 {
+					b.Show.Season.Index++
 				}
-				cli.DrawText(b.CLI.Screen, 0, 0, 100, 100, b.CLI.Style, text)
-				b.Show.Season.Index = updateSelectionIndex(b.Show.Season.Index, true)
-				b.drawSeasonResults()
+
+				b.Show.Season.Page = getSeasonResults(
+					b.Show.Season.Page, b.Show.Details.Seasons, b.Show.Season.Page.Current, b.Show.Season.Page.Results)
+
+				text = cli.BuildScreen(b.Show.Season.Page, b.Show.Season.Index, header, b.Show.Season.Page.Content, true)
+
+				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 			}
 			if ev.Key() == tcell.KeyUp {
 				s.Clear()
-				text := []string{
-					"This is the top layer of the app",
-					"Browse Shows:",
+				if b.Show.Season.Index > 0 {
+					b.Show.Season.Index--
 				}
-				cli.DrawText(b.CLI.Screen, 0, 0, 100, 100, b.CLI.Style, text)
-				b.Show.Season.Index = updateSelectionIndex(b.Show.Season.Index, false)
-				b.drawSeasonResults()
+
+				b.Show.Season.Page = getSeasonResults(
+					b.Show.Season.Page, b.Show.Details.Seasons, b.Show.Season.Page.Current, b.Show.Season.Page.Results)
+
+				text = cli.BuildScreen(b.Show.Season.Page, b.Show.Season.Index, header, b.Show.Season.Page.Content, true)
+
+				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
+			}
+			if ev.Key() == tcell.KeyRight {
+				s.Clear()
+
+				b.Show.Season.Page = getSeasonResults(
+					b.Show.Season.Page, b.Show.Details.Seasons, b.Show.Season.Page.Current+1, b.Show.Season.Page.Results)
+
+				text = cli.BuildScreen(b.Show.Season.Page, b.Show.Season.Index, header, b.Show.Season.Page.Content, true)
+
+				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
+			}
+			if ev.Key() == tcell.KeyLeft {
+				s.Clear()
+
+				b.Show.Season.Page = getSeasonResults(
+					b.Show.Season.Page, b.Show.Details.Seasons, b.Show.Season.Page.Current-1, b.Show.Season.Page.Results)
+
+				text = cli.BuildScreen(b.Show.Season.Page, b.Show.Season.Index, header, b.Show.Season.Page.Content, true)
+
+				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 			}
 		}
 	}
 }
 
-func (b Browser) drawSeasonResults() {
-	var text []string
-	for i, season := range b.Show.Details.Seasons {
-		if int32(i) == b.Show.Season.Index {
-			text = append(text, "> "+season.Name)
-		} else {
-			text = append(text, "  "+season.Name)
+func getSeasonResults(seasonPage cli.Page, seasons []tmdb.ShowSeasonDetail, page int, results int) cli.Page {
+	startIndex := results * (page - 1)
+	if startIndex < 0 || startIndex > len(seasons) {
+		return seasonPage
+	}
+	endIndex := startIndex + results - 1
+	if endIndex > len(seasons) {
+		endIndex = len(seasons)
+	}
+
+	var content []cli.Content
+
+	for i, season := range seasons {
+		if i >= startIndex && i <= endIndex {
+			content = append(content, cli.Content{
+				Display: season.Name,
+				ID:      season.ID,
+			})
 		}
 	}
-	cli.DrawText(b.CLI.Screen, 0, 2, 100, 100, b.CLI.Style, text)
+
+	maxTabs := math.Ceil(float64(len(seasons)) / float64(results))
+
+	return cli.Page{
+		Current: page,
+		Total:   int(maxTabs),
+		Results: results,
+		Content: content,
+	}
+}
+
+func getCurrentSeasonIndex(season Season, seasons []tmdb.ShowSeasonDetail) int {
+	var index int
+
+	for i, s := range seasons {
+		if s.ID == season.Page.Content[season.Index].ID {
+			index = i
+		}
+	}
+
+	return index
 }
