@@ -11,6 +11,8 @@ import (
 	"os"
 )
 
+// getShowResult retrieves a parsed object for searching shows with a query.
+// It requires config parameters, a query string and the requested results page.
 func getShowResult(conf config.Config, query string, page int) (tmdb.Show, error) {
 	queries := tmdb.Queries{
 		ApiKey:       conf.Library.Auth.APIKey,
@@ -34,6 +36,8 @@ func getShowResult(conf config.Config, query string, page int) (tmdb.Show, error
 	return searchObj, nil
 }
 
+// getShow retrieves a parsed object with details for a specific show.
+// It requires config parameters and the ID of the show.
 func getShow(conf config.Config, id int) (tmdb.ShowDetail, error) {
 	queries := tmdb.Queries{
 		ApiKey:   conf.Library.Auth.APIKey,
@@ -54,6 +58,7 @@ func getShow(conf config.Config, id int) (tmdb.ShowDetail, error) {
 	return searchObj, nil
 }
 
+// browseShows starts and handles the CLI screen for browsing shows.
 func (b Browser) browseShows() error {
 	s, defStyle := cli.SetupScreen()
 	b.CLI.Screen = s
@@ -159,6 +164,8 @@ func (b Browser) browseShows() error {
 	}
 }
 
+// getSearchResults retrieves all necessary data objects for a shows search and creates a cli.Page
+// with the results for a specific page and amount of results.
 func getSearchResults(b Browser, page int, results int) ([]tmdb.Show, cli.Page) {
 	startIndex := results * (page - 1)
 	if startIndex < 0 {
@@ -183,6 +190,8 @@ func getSearchResults(b Browser, page int, results int) ([]tmdb.Show, cli.Page) 
 	return b.Search, resPage
 }
 
+// getMissingSearchData retrieves additional data for a shows search based on the required endIndex
+// of the objects to display.
 func getMissingSearchData(b Browser, endIndex int) []tmdb.Show {
 	if len(b.Search) > 0 && endIndex > b.Search[0].TotalResults {
 		return b.Search
@@ -214,6 +223,9 @@ func getMissingSearchData(b Browser, endIndex int) []tmdb.Show {
 	return b.Search
 }
 
+// filterSelectedData creates a new cli.Page based on the provided shows search data.
+// It defines the data for the Page based on the requested page and amount of results to display,
+// and the startIndex and endIndex of the available data.
 func filterSelectedData(showSearch []tmdb.Show, page int, results int, startIndex int, endIndex int) cli.Page {
 	var data []tmdb.ShowResult
 	var selectedData []cli.Content

@@ -3,5 +3,4 @@ library:
     apiKey: <your-key>
   settings:
     adultContent: false
-#    checked for possible ISO 639-1 or BCP 47 strings
     language: en-US

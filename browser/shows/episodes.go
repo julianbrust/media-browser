@@ -8,6 +8,7 @@ import (
 	"os"
 )
 
+// browseEpisodes starts and handles the CLI screen for browsing episodes.
 func (b Browser) browseEpisodes() error {
 	s, defStyle := cli.SetupScreen()
 	b.CLI.Screen = s
@@ -117,6 +118,9 @@ func (b Browser) browseEpisodes() error {
 	}
 }
 
+// getEpisodeResults provides the requested selection of results in a cli.Page. It updates the
+// requested data of the previous epPage with data from all available episodes based on the requested
+// page and number of results per page.
 func getEpisodeResults(epPage cli.Page, episodes []tmdb.ShowEpisode, page int, results int) cli.Page {
 	startIndex := results * (page - 1)
 	if startIndex < 0 || startIndex > len(episodes) {
@@ -148,6 +152,8 @@ func getEpisodeResults(epPage cli.Page, episodes []tmdb.ShowEpisode, page int, r
 	}
 }
 
+// getCurrentEpisode updates the current Episode details from the requested episode in the list of
+// available episodes.
 func getCurrentEpisode(episode Episode, episodes []tmdb.ShowEpisode) Episode {
 	for _, ep := range episodes {
 		if ep.ID == episode.Page.Content[episode.Index].ID {

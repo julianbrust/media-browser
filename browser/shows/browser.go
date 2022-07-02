@@ -6,35 +6,41 @@ import (
 	"github.com/julianbrust/media-browser/tmdb"
 )
 
+// Browser represents the object that holds all the data for the current search through shows,
+// their seasons and episodes.
 type Browser struct {
-	Config config.Config
-	cli.CLI
-	Search []tmdb.Show
-	Query  string
-	Show
+	Config  config.Config // the current app config
+	cli.CLI               // the CLI object for the tcell screens used
+	Search  []tmdb.Show   // collection of show search results fron the tmdb API
+	Query   string        // the current query
+	Show                  // object containing all the information for the currently selected show
 }
 
+// Show represents all the information for a show.
 type Show struct {
-	cli.Page
-	Index   int
-	Details tmdb.ShowDetail
-	Season
+	cli.Page                 // the current results' page to display
+	Index    int             // the current index of the selected show
+	Details  tmdb.ShowDetail // details about the show provided by the tmdb API
+	Season                   // object containing all the information for the currently selected season
 }
 
+// Season represents all the information for a season.
 type Season struct {
-	cli.Page
-	Index   int
-	Details tmdb.ShowSeason
-	Episode
+	cli.Page                 // the current results' page to display
+	Index    int             // the current index of the selected season
+	Details  tmdb.ShowSeason // details about the season provided by the tmdb API
+	Episode                  // object containing all the information for the currently selected episode
 }
 
+// Episode represents all the information for an episode.
 type Episode struct {
-	cli.Page
-	Index   int
-	Details tmdb.ShowEpisode
-	ID      int
+	cli.Page                  // the current results' page to display
+	Index    int              // the current index of the selected episode
+	Details  tmdb.ShowEpisode // details about the episode provided by the tmdb API
+	ID       int              // ID of the current episode
 }
 
+// Browse initiates drawing the first screen for browsing shows.
 func Browse(conf config.Config) {
 	b := Browser{
 		Config: conf,

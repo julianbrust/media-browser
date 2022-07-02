@@ -10,6 +10,8 @@ import (
 	"os"
 )
 
+// getSeason retrieves a parsed object for searching for a specific season.
+// It requires config parameters, the id of the show and the number for the required season.
 func getSeason(conf config.Config, id int, season int) (tmdb.ShowSeason, error) {
 	queries := tmdb.Queries{
 		ApiKey:   conf.Library.Auth.APIKey,
@@ -32,6 +34,7 @@ func getSeason(conf config.Config, id int, season int) (tmdb.ShowSeason, error) 
 	return searchObj, nil
 }
 
+// browseSeasons starts and handles the CLI screen for browsing seasons.
 func (b Browser) browseSeasons() error {
 	s, defStyle := cli.SetupScreen()
 	b.CLI.Screen = s
@@ -77,9 +80,9 @@ func (b Browser) browseSeasons() error {
 				}
 			}
 			if ev.Key() == tcell.KeyEnter {
-				currentSeasonIndex := getCurrentSeasonIndex(b.Show.Season, b.Show.Details.Seasons)
+				currentSeasonNumber := getCurrentSeasonNumber(b.Show.Season, b.Show.Details.Seasons)
 
-				season, err := getSeason(b.Config, b.Show.Details.ID, currentSeasonIndex)
+				season, err := getSeason(b.Config, b.Show.Details.ID, currentSeasonNumber)
 				if err != nil {
 					s.Fini()
 					err := b.browseSeasons()
@@ -152,6 +155,8 @@ func (b Browser) browseSeasons() error {
 	}
 }
 
+// getSeasonResults creates a new cli.Page based on the provided season data.
+// It defines the data for the Page based on the requested page and amount of results to display.
 func getSeasonResults(seasonPage cli.Page, seasons []tmdb.ShowDetailSeason, page int, results int) cli.Page {
 	startIndex := results * (page - 1)
 	if startIndex < 0 || startIndex > len(seasons) {
@@ -183,14 +188,16 @@ func getSeasonResults(seasonPage cli.Page, seasons []tmdb.ShowDetailSeason, page
 	}
 }
 
-func getCurrentSeasonIndex(season Season, seasons []tmdb.ShowDetailSeason) int {
-	var index int
+// getCurrentSeasonNumber returns the seasonNumber in the retrieved data of seasons based on the
+// currently selected season.
+func getCurrentSeasonNumber(season Season, seasons []tmdb.ShowDetailSeason) int {
+	var seasonNumber int
 
-	for i, s := range seasons {
+	for _, s := range seasons {
 		if s.ID == season.Page.Content[season.Index].ID {
-			index = i
+			seasonNumber = s.SeasonNumber
 		}
 	}
 
-	return index
+	return seasonNumber
 }

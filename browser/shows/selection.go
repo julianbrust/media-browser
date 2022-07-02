@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// showSelection starts and handles the CLI screen for displaying the current selection.
 func (b Browser) showSelection() error {
 	s, defStyle := cli.SetupScreen()
 	b.CLI.Screen = s
@@ -45,6 +46,7 @@ func (b Browser) showSelection() error {
 	}
 }
 
+// getSelection combines all the information about the current selection in lines to display.
 func getSelection(show Show, header []string) []string {
 	showName := show.Details.Name
 	seasonName := show.Season.Details.Name
