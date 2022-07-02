@@ -4,16 +4,18 @@ import (
 	"github.com/julianbrust/media-browser/cli"
 	"github.com/julianbrust/media-browser/config"
 	"github.com/julianbrust/media-browser/tmdb"
+	"github.com/sirupsen/logrus"
 )
 
 // Browser represents the object that holds all the data for the current search through shows,
 // their seasons and episodes.
 type Browser struct {
-	Config  config.Config // the current app config
-	cli.CLI               // the CLI object for the tcell screens used
-	Search  []tmdb.Show   // collection of show search results fron the tmdb API
-	Query   string        // the current query
-	Show                  // object containing all the information for the currently selected show
+	Config  *config.Config // the current app config
+	Log     *logrus.Logger // logger instance
+	cli.CLI                // the CLI object for the tcell screens used
+	Search  []tmdb.Show    // collection of show search results fron the tmdb API
+	Query   string         // the current query
+	Show                   // object containing all the information for the currently selected show
 }
 
 // Show represents all the information for a show.
@@ -41,9 +43,6 @@ type Episode struct {
 }
 
 // Browse initiates drawing the first screen for browsing shows.
-func Browse(conf config.Config) {
-	b := Browser{
-		Config: conf,
-	}
+func (b Browser) Browse() {
 	b.showSearch()
 }

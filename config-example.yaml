@@ -4,3 +4,5 @@ library:
   settings:
     adultContent: false
     language: en-US
+logger:
+  level: info

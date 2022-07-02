@@ -36,6 +36,8 @@ func getSeason(conf config.Config, id int, season int) (tmdb.ShowSeason, error) 
 
 // browseSeasons starts and handles the CLI screen for browsing seasons.
 func (b Browser) browseSeasons() error {
+	b.Log.Traceln("starting browseSeasons")
+
 	s, defStyle := cli.SetupScreen()
 	b.CLI.Screen = s
 	b.CLI.Style = defStyle
@@ -82,7 +84,7 @@ func (b Browser) browseSeasons() error {
 			if ev.Key() == tcell.KeyEnter {
 				currentSeasonNumber := getCurrentSeasonNumber(b.Show.Season, b.Show.Details.Seasons)
 
-				season, err := getSeason(b.Config, b.Show.Details.ID, currentSeasonNumber)
+				season, err := getSeason(*b.Config, b.Show.Details.ID, currentSeasonNumber)
 				if err != nil {
 					s.Fini()
 					err := b.browseSeasons()

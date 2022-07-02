@@ -9,6 +9,8 @@ import (
 
 // showSearch starts and handles the CLI screen for typing a search.
 func (b Browser) showSearch() {
+	b.Log.Traceln("starting showSearch")
+
 	s, defStyle := cli.SetupScreen()
 	b.CLI.Screen = s
 	b.CLI.Style = defStyle

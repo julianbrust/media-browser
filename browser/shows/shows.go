@@ -60,6 +60,8 @@ func getShow(conf config.Config, id int) (tmdb.ShowDetail, error) {
 
 // browseShows starts and handles the CLI screen for browsing shows.
 func (b Browser) browseShows() error {
+	b.Log.Traceln("starting browseShows")
+
 	s, defStyle := cli.SetupScreen()
 	b.CLI.Screen = s
 	b.CLI.Style = defStyle
@@ -97,7 +99,7 @@ func (b Browser) browseShows() error {
 				b.showSearch()
 			}
 			if ev.Key() == tcell.KeyEnter {
-				show, err := getShow(b.Config, b.Show.Page.Content[b.Show.Index].ID)
+				show, err := getShow(*b.Config, b.Show.Page.Content[b.Show.Index].ID)
 				if err != nil {
 					s.Fini()
 					b.showSearch()
@@ -208,7 +210,7 @@ func getMissingSearchData(b Browser, endIndex int) []tmdb.Show {
 
 		if currentEndIndex < endIndex {
 			reqPage := len(b.Search) + 1
-			newContent, err := getShowResult(b.Config, b.Query, reqPage)
+			newContent, err := getShowResult(*b.Config, b.Query, reqPage)
 			if err != nil {
 				fmt.Println(err)
 			}

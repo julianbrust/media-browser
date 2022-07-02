@@ -63,15 +63,13 @@ type ShowEpisode struct {
 }
 
 func GetTVLatest(queries Queries) (*http.Response, error) {
-	client := &http.Client{}
-
 	req, _ := http.NewRequest("GET", "https://api.themoviedb.org/3/tv/latest", nil)
 
 	q := req.URL.Query()
 	q.Add("api_key", queries.ApiKey)
 	req.URL.RawQuery = q.Encode()
 
-	res, err := client.Do(req)
+	res, err := Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -81,8 +79,6 @@ func GetTVLatest(queries Queries) (*http.Response, error) {
 
 // SearchTV runs a request to tmdb for GET /search/tv.
 func SearchTV(queries Queries) (*http.Response, error) {
-	client := &http.Client{}
-
 	req, _ := http.NewRequest("GET", "https://api.themoviedb.org/3/search/tv", nil)
 
 	q := req.URL.Query()
@@ -93,7 +89,7 @@ func SearchTV(queries Queries) (*http.Response, error) {
 	q.Add("query", queries.Query)
 	req.URL.RawQuery = q.Encode()
 
-	res, err := client.Do(req)
+	res, err := Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -103,8 +99,6 @@ func SearchTV(queries Queries) (*http.Response, error) {
 
 // GetTVShow runs a request to tmdb for GET /tv/{tv_id}.
 func GetTVShow(id int, queries Queries) (*http.Response, error) {
-	client := &http.Client{}
-
 	addr := "https://api.themoviedb.org/3/tv/" + strconv.FormatInt(int64(id), 10)
 	req, _ := http.NewRequest("GET", addr, nil)
 
@@ -113,7 +107,7 @@ func GetTVShow(id int, queries Queries) (*http.Response, error) {
 	q.Add("language", queries.Language)
 	req.URL.RawQuery = q.Encode()
 
-	res, err := client.Do(req)
+	res, err := Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -123,8 +117,6 @@ func GetTVShow(id int, queries Queries) (*http.Response, error) {
 
 // GetTVShowSeason runs a request to tmdb for GET /tv/{tv_id}/season/{season_number}.
 func GetTVShowSeason(id int, season int, queries Queries) (*http.Response, error) {
-	client := &http.Client{}
-
 	addr := "https://api.themoviedb.org/3/tv/" + strconv.FormatInt(int64(id), 10) +
 		"/season/" + strconv.FormatInt(int64(season), 10)
 
@@ -135,7 +127,7 @@ func GetTVShowSeason(id int, season int, queries Queries) (*http.Response, error
 	q.Add("language", queries.Language)
 	req.URL.RawQuery = q.Encode()
 
-	res, err := client.Do(req)
+	res, err := Client.Do(req)
 	if err != nil {
 		return nil, err
 	}

@@ -10,6 +10,8 @@ import (
 
 // browseEpisodes starts and handles the CLI screen for browsing episodes.
 func (b Browser) browseEpisodes() error {
+	b.Log.Traceln("starting browseEpisodes")
+
 	s, defStyle := cli.SetupScreen()
 	b.CLI.Screen = s
 	b.CLI.Style = defStyle

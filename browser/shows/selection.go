@@ -8,6 +8,8 @@ import (
 
 // showSelection starts and handles the CLI screen for displaying the current selection.
 func (b Browser) showSelection() error {
+	b.Log.Traceln("starting showSelection")
+
 	s, defStyle := cli.SetupScreen()
 	b.CLI.Screen = s
 	b.CLI.Style = defStyle

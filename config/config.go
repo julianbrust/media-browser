@@ -17,11 +17,14 @@ type Config struct {
 			Language     string `yaml:"language"`
 		} `yaml:"settings"`
 	} `yaml:"library"`
+	Logger struct {
+		Level string `yaml:"level"`
+	} `yaml:"logger"`
 }
 
-// ReadConf parses the YAML configuration from the config.yaml file
+// Get parses the YAML configuration from the config.yaml file
 // located in the same directory as the app.
-func ReadConf() (Config, error) {
+func Get() (Config, error) {
 	conf := Config{}
 
 	dirname, err := os.Getwd()

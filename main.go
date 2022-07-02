@@ -3,40 +3,34 @@ package main
 import (
 	"github.com/julianbrust/media-browser/browser/shows"
 	"github.com/julianbrust/media-browser/config"
+	"github.com/julianbrust/media-browser/logger"
 	"github.com/julianbrust/media-browser/tmdb"
 	"github.com/sirupsen/logrus"
-	"os"
 )
 
-var log *logrus.Logger
+var (
+	log  *logrus.Logger
+	conf config.Config
+)
 
 func init() {
-	file := "/tmp/media-browser.log"
-	log = logrus.New()
-
-	err := os.Remove(file)
+	var err error
+	conf, err = config.Get()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	logFile, err := os.OpenFile(file, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.SetOutput(logFile)
+	log = logger.Init(&conf.Logger.Level)
 }
 
 func main() {
-	conf, err := config.ReadConf()
+	err := tmdb.VerifyConfig(conf)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = tmdb.VerifyConfig(conf)
-	if err != nil {
-		log.Fatal(err)
+	b := shows.Browser{
+		Config: &conf,
+		Log:    log,
 	}
-
-	shows.Browse(conf)
+	b.Browse()
 }
