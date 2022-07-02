@@ -6,12 +6,15 @@ import (
 	"strconv"
 )
 
+// SetupScreen prepares a new tcell CLI screen.
+// It creates and returns tcell.Screen object.
+// It sets a default style config and returns it as tcell.Style.
 func SetupScreen() (tcell.Screen, tcell.Style) {
 	s, err := tcell.NewScreen()
 	if err != nil {
 		log.Fatalf("%+v", err)
 	}
-	if err := s.Init(); err != nil {
+	if err = s.Init(); err != nil {
 		log.Fatalf("%+v", err)
 	}
 
@@ -23,27 +26,33 @@ func SetupScreen() (tcell.Screen, tcell.Style) {
 	return s, defStyle
 }
 
+// CLI represents a tcell object containing the necessary Screen and Style objects.
 type CLI struct {
-	Screen tcell.Screen
-	Style  tcell.Style
+	Screen tcell.Screen // tcell.Screen object
+	Style  tcell.Style  // style configuration for a tcell screen
 }
 
+// Page represents a Page of a list of browsable content for CLI views.
 type Page struct {
-	Current int
-	Total   int
-	Results int
-	Content []Content
+	Current int       // current page
+	Total   int       // total number of pages
+	Results int       // number of results on the current page
+	Content []Content // Content for the current page
 }
 
+// Content represents an Item to be displayed on a browsable page.
 type Content struct {
-	Display string
-	ID      int
+	Display string // value to display
+	ID      int    // ID of the content element
 }
 
+// ScreenDimensions represents values to define the dimensions of a CLI screen.
 type ScreenDimensions struct {
-	X1, X2, Y1, Y2 int
+	X1, X2, Y1, Y2 int // start and end values on the X and Y Axis
 }
 
+// GetDimensions sets the screen dimensions starting from the top left.
+// It uses width and height to define the bottom left params of the screen.
 func GetDimensions(width int, height int) ScreenDimensions {
 	return ScreenDimensions{
 		X1: 0,
@@ -53,6 +62,10 @@ func GetDimensions(width int, height int) ScreenDimensions {
 	}
 }
 
+// BuildScreen creates the content for a tcell screen.
+// It creates an array of lines to display.
+// header lines will be added to the top.
+// page, index and content can be used to add a browsable list.
 func BuildScreen(page Page, index int, header []string, content []Content, list bool) []string {
 	newText := make([]string, len(header)+page.Results+1)
 
@@ -60,18 +73,28 @@ func BuildScreen(page Page, index int, header []string, content []Content, list 
 		newText[i] = line
 	}
 
-	listIndex := len(header)
-	browsableList := BuildBrowsableList(page, index, content, list)
+	if index > len(content)-1 {
+		index = len(content) - 1
+	}
 
-	for _, entry := range browsableList {
-		newText[listIndex] = entry
-		listIndex++
+	listIndex := len(header)
+
+	if list {
+		browsableList := BuildBrowsableList(page, index, content)
+
+		for _, entry := range browsableList {
+			newText[listIndex] = entry
+			listIndex++
+		}
 	}
 
 	return newText
 }
 
-func BuildBrowsableList(page Page, index int, content []Content, list bool) []string {
+// BuildBrowsableList creates a list of lines for a browsable page.
+// It uses the current page and content on that page.
+// It will prepend the item at the current index with an arrow.
+func BuildBrowsableList(page Page, index int, content []Content) []string {
 	entriesAmount := len(page.Content)
 
 	entries := make([]string, page.Results+1)
@@ -90,14 +113,13 @@ func BuildBrowsableList(page Page, index int, content []Content, list bool) []st
 		}
 	}
 
-	if list {
-		entries[page.Results] = "page " + strconv.FormatInt(int64(page.Current), 10) +
-			"/" + strconv.FormatInt(int64(page.Total), 10)
-	}
+	entries[page.Results] = "page " + strconv.FormatInt(int64(page.Current), 10) +
+		"/" + strconv.FormatInt(int64(page.Total), 10)
 
 	return entries
 }
 
+// DrawScreen draws a tcell screen line by line.
 func DrawScreen(screen tcell.Screen, style tcell.Style, dim ScreenDimensions, text []string) {
 	row := dim.Y1
 	col := dim.X1

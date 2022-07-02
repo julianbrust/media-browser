@@ -130,6 +130,10 @@ func (b Browser) browseSeasons() error {
 				b.Show.Season.Page = getSeasonResults(
 					b.Show.Season.Page, b.Show.Details.Seasons, b.Show.Season.Page.Current+1, b.Show.Season.Page.Results)
 
+				if b.Show.Season.Index > len(b.Show.Season.Page.Content)-1 {
+					b.Show.Season.Index = len(b.Show.Season.Page.Content) - 1
+				}
+
 				text = cli.BuildScreen(b.Show.Season.Page, b.Show.Season.Index, header, b.Show.Season.Page.Content, true)
 
 				s.Clear()
@@ -148,7 +152,7 @@ func (b Browser) browseSeasons() error {
 	}
 }
 
-func getSeasonResults(seasonPage cli.Page, seasons []tmdb.ShowSeasonDetail, page int, results int) cli.Page {
+func getSeasonResults(seasonPage cli.Page, seasons []tmdb.ShowDetailSeason, page int, results int) cli.Page {
 	startIndex := results * (page - 1)
 	if startIndex < 0 || startIndex > len(seasons) {
 		return seasonPage
@@ -179,7 +183,7 @@ func getSeasonResults(seasonPage cli.Page, seasons []tmdb.ShowSeasonDetail, page
 	}
 }
 
-func getCurrentSeasonIndex(season Season, seasons []tmdb.ShowSeasonDetail) int {
+func getCurrentSeasonIndex(season Season, seasons []tmdb.ShowDetailSeason) int {
 	var index int
 
 	for i, s := range seasons {

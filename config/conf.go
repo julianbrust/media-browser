@@ -2,11 +2,11 @@ package config
 
 import (
 	"gopkg.in/yaml.v3"
-	"log"
 	"os"
 	"path"
 )
 
+// Config represent the configuration object for the app
 type Config struct {
 	Library struct {
 		Auth struct {
@@ -19,25 +19,27 @@ type Config struct {
 	} `yaml:"library"`
 }
 
+// ReadConf parses the YAML configuration from the config.yaml file
+// located in the same directory as the app.
 func ReadConf() (Config, error) {
 	conf := Config{}
 
 	dirname, err := os.Getwd()
 	if err != nil {
-		log.Fatal(err)
+		return Config{}, err
 	}
 	config := "config.yaml"
 
 	file, err := os.Open(path.Join(dirname, config))
 	if err != nil {
-		log.Fatal(err)
+		return Config{}, err
 	}
 	defer file.Close()
 
 	d := yaml.NewDecoder(file)
 
-	if err := d.Decode(&conf); err != nil {
-		return conf, err
+	if err = d.Decode(&conf); err != nil {
+		return Config{}, err
 	}
 
 	conf = setDefaults(conf)
@@ -45,6 +47,7 @@ func ReadConf() (Config, error) {
 	return conf, nil
 }
 
+// setDefaults provides some default parameters if nothing is defined.
 func setDefaults(conf Config) Config {
 	if conf.Library.Settings.Language == "" {
 		conf.Library.Settings.Language = "en-US"

@@ -5,45 +5,40 @@ import (
 	"strconv"
 )
 
+// Queries represents a collection of possible query parameters for tmdb requests.
 type Queries struct {
-	ApiKey       string
-	AdultContent bool
-	Language     string
-	Page         int
-	Query        string
+	ApiKey       string // API Key to authenticate with tmdb
+	AdultContent bool   // toggle to include adult content
+	Language     string // ISO 639-1 language option
+	Page         int    // requested page of results
+	Query        string // query string
 }
 
-//type ShowsSearch struct {
-//	Search         Show
-//	Query          string
-//	SelectionIndex int32
-//}
-
-type ShowSelection struct {
-	Details      ShowDetail
-	SeasonIndex  int
-	EpisodeIndex int
-}
-
+// Show represents the response object for tmdb request GET /search/tv.
 type Show struct {
-	ResBody
-	Results []ShowResult `json:"results"`
+	Page         int          `json:"page"`
+	TotalPages   int          `json:"total_pages"`
+	TotalResults int          `json:"total_results"`
+	Results      []ShowResult `json:"results"`
 }
 
+// ShowResult represents the object for a show result in tmdb request GET /search/tv.
 type ShowResult struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
+// ShowDetail represents the response object for tmdb request GET /tv/{tv_id}.
 type ShowDetail struct {
 	ID               int                `json:"id"`
 	Name             string             `json:"name"`
 	NumberOfEpisodes int                `json:"number_of_episodes"`
 	NumberOfSeasons  int                `json:"number_of_seasons"`
-	Seasons          []ShowSeasonDetail `json:"seasons"`
+	Seasons          []ShowDetailSeason `json:"seasons"`
 }
 
-type ShowSeasonDetail struct {
+// ShowDetailSeason represents the object for a Season in tmdb request GET /tv/{tv_id}.
+type ShowDetailSeason struct {
 	ID           int    `json:"id"`
 	Name         string `json:"name"`
 	Overview     string `json:"overview"`
@@ -51,6 +46,7 @@ type ShowSeasonDetail struct {
 	SeasonNumber int    `json:"season_number"`
 }
 
+// ShowSeason represents the response object for tmdb request GET /tv/{tv_id}/season/{season_number}.
 type ShowSeason struct {
 	ID           int           `json:"id"`
 	Name         string        `json:"name"`
@@ -59,16 +55,11 @@ type ShowSeason struct {
 	Overview     string        `json:"overview"`
 }
 
+// ShowEpisode represents the object for an Episode in tmdb request GET /tv/{tv_id}/season/{season_number}.
 type ShowEpisode struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	Overview string `json:"overview"`
-}
-
-type ResBody struct {
-	Page         int `json:"page"`
-	TotalPages   int `json:"total_pages"`
-	TotalResults int `json:"total_results"`
 }
 
 func GetTVLatest(queries Queries) (*http.Response, error) {
@@ -88,6 +79,7 @@ func GetTVLatest(queries Queries) (*http.Response, error) {
 	return res, nil
 }
 
+// SearchTV runs a request to tmdb for GET /search/tv.
 func SearchTV(queries Queries) (*http.Response, error) {
 	client := &http.Client{}
 
@@ -109,6 +101,7 @@ func SearchTV(queries Queries) (*http.Response, error) {
 	return res, nil
 }
 
+// GetTVShow runs a request to tmdb for GET /tv/{tv_id}.
 func GetTVShow(id int, queries Queries) (*http.Response, error) {
 	client := &http.Client{}
 
@@ -128,6 +121,7 @@ func GetTVShow(id int, queries Queries) (*http.Response, error) {
 	return res, nil
 }
 
+// GetTVShowSeason runs a request to tmdb for GET /tv/{tv_id}/season/{season_number}.
 func GetTVShowSeason(id int, season int, queries Queries) (*http.Response, error) {
 	client := &http.Client{}
 

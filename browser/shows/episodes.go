@@ -93,6 +93,10 @@ func (b Browser) browseEpisodes() error {
 				b.Show.Season.Episode.Page = getEpisodeResults(
 					b.Show.Season.Episode.Page, b.Show.Season.Details.Episodes, b.Show.Season.Episode.Page.Current+1, b.Show.Season.Episode.Page.Results)
 
+				if b.Show.Season.Episode.Index > len(b.Show.Season.Episode.Page.Content)-1 {
+					b.Show.Season.Episode.Index = len(b.Show.Season.Episode.Page.Content) - 1
+				}
+
 				text = cli.BuildScreen(
 					b.Show.Season.Episode.Page, b.Show.Season.Episode.Index, header, b.Show.Season.Episode.Page.Content, true)
 

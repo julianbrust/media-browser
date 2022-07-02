@@ -138,6 +138,10 @@ func (b Browser) browseShows() error {
 			if ev.Key() == tcell.KeyRight {
 				b.Search, b.Show.Page = getSearchResults(b, b.Show.Page.Current+1, b.Show.Page.Results)
 
+				if b.Show.Index > len(b.Show.Page.Content)-1 {
+					b.Show.Index = len(b.Show.Page.Content) - 1
+				}
+
 				text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, b.Show.Page.Content, true)
 
 				s.Clear()
