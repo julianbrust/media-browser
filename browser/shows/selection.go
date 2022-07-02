@@ -12,7 +12,7 @@ func (b Browser) showSelection() error {
 	b.CLI.Style = defStyle
 
 	header := []string{
-		"This is the top layer of the app",
+		"[ENTER, CTRL+C: Quit | ESC: Back]",
 		"You selected:",
 	}
 

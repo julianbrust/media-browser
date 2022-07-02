@@ -63,7 +63,7 @@ func (b Browser) browseShows() error {
 	b.Show.Page.Results = 10
 
 	header := []string{
-		"This is the top layer of the app",
+		"[↓→↑←: Navigate | ENTER: Confirm | ESC: Back | CTRL+C: Quit]",
 		"Browse Shows:",
 	}
 
@@ -78,11 +78,16 @@ func (b Browser) browseShows() error {
 
 		switch ev := ev.(type) {
 		case *tcell.EventResize:
-			s.Clear()
 			dim = cli.GetDimensions(s.Size())
+
+			s.Clear()
 			cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 		case *tcell.EventKey:
-			if ev.Key() == tcell.KeyEscape || ev.Key() == tcell.KeyCtrlC {
+			if ev.Key() == tcell.KeyCtrlC {
+				s.Fini()
+				os.Exit(0)
+			}
+			if ev.Key() == tcell.KeyEscape {
 				s.Fini()
 				b.showSearch()
 			}
@@ -107,8 +112,6 @@ func (b Browser) browseShows() error {
 				os.Exit(1)
 			}
 			if ev.Key() == tcell.KeyDown {
-				s.Clear()
-
 				if b.Show.Index < len(b.Show.Page.Content)-1 {
 					b.Show.Index++
 				}
@@ -117,11 +120,10 @@ func (b Browser) browseShows() error {
 
 				text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, b.Show.Page.Content, true)
 
+				s.Clear()
 				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 			}
 			if ev.Key() == tcell.KeyUp {
-				s.Clear()
-
 				if b.Show.Index > 0 {
 					b.Show.Index--
 				}
@@ -130,24 +132,23 @@ func (b Browser) browseShows() error {
 
 				text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, b.Show.Page.Content, true)
 
+				s.Clear()
 				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 			}
 			if ev.Key() == tcell.KeyRight {
-				s.Clear()
-
 				b.Search, b.Show.Page = getSearchResults(b, b.Show.Page.Current+1, b.Show.Page.Results)
 
 				text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, b.Show.Page.Content, true)
 
+				s.Clear()
 				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 			}
 			if ev.Key() == tcell.KeyLeft {
-				s.Clear()
-
 				b.Search, b.Show.Page = getSearchResults(b, b.Show.Page.Current-1, b.Show.Page.Results)
 
 				text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, b.Show.Page.Content, true)
 
+				s.Clear()
 				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 			}
 		}

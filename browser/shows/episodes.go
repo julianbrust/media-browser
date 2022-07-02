@@ -5,6 +5,7 @@ import (
 	"github.com/julianbrust/media-browser/cli"
 	"github.com/julianbrust/media-browser/tmdb"
 	"math"
+	"os"
 )
 
 func (b Browser) browseEpisodes() error {
@@ -16,7 +17,7 @@ func (b Browser) browseEpisodes() error {
 	b.Show.Season.Episode.Page.Results = 10
 
 	header := []string{
-		"This is the top layer of the app",
+		"[↓→↑←: Navigate | ENTER: Confirm | ESC: Back | CTRL+C: Quit]",
 		"Browse Episodes:",
 	}
 	b.Show.Season.Episode.Page = getEpisodeResults(
@@ -35,11 +36,16 @@ func (b Browser) browseEpisodes() error {
 
 		switch ev := ev.(type) {
 		case *tcell.EventResize:
-			s.Clear()
 			dim = cli.GetDimensions(s.Size())
+
+			s.Clear()
 			cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 		case *tcell.EventKey:
-			if ev.Key() == tcell.KeyEscape || ev.Key() == tcell.KeyCtrlC {
+			if ev.Key() == tcell.KeyCtrlC {
+				s.Fini()
+				os.Exit(0)
+			}
+			if ev.Key() == tcell.KeyEscape {
 				s.Fini()
 				err := b.browseSeasons()
 				if err != nil {
@@ -56,7 +62,6 @@ func (b Browser) browseEpisodes() error {
 				}
 			}
 			if ev.Key() == tcell.KeyDown {
-				s.Clear()
 				if b.Show.Season.Episode.Index < len(b.Show.Season.Episode.Page.Content)-1 {
 					b.Show.Season.Episode.Index++
 				}
@@ -67,10 +72,10 @@ func (b Browser) browseEpisodes() error {
 				text = cli.BuildScreen(
 					b.Show.Season.Episode.Page, b.Show.Season.Episode.Index, header, b.Show.Season.Episode.Page.Content, true)
 
+				s.Clear()
 				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 			}
 			if ev.Key() == tcell.KeyUp {
-				s.Clear()
 				if b.Show.Season.Episode.Index > 0 {
 					b.Show.Season.Episode.Index--
 				}
@@ -81,28 +86,27 @@ func (b Browser) browseEpisodes() error {
 				text = cli.BuildScreen(
 					b.Show.Season.Episode.Page, b.Show.Season.Episode.Index, header, b.Show.Season.Episode.Page.Content, true)
 
+				s.Clear()
 				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 			}
 			if ev.Key() == tcell.KeyRight {
-				s.Clear()
-
 				b.Show.Season.Episode.Page = getEpisodeResults(
 					b.Show.Season.Episode.Page, b.Show.Season.Details.Episodes, b.Show.Season.Episode.Page.Current+1, b.Show.Season.Episode.Page.Results)
 
 				text = cli.BuildScreen(
 					b.Show.Season.Episode.Page, b.Show.Season.Episode.Index, header, b.Show.Season.Episode.Page.Content, true)
 
+				s.Clear()
 				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 			}
 			if ev.Key() == tcell.KeyLeft {
-				s.Clear()
-
 				b.Show.Season.Episode.Page = getEpisodeResults(
 					b.Show.Season.Episode.Page, b.Show.Season.Details.Episodes, b.Show.Season.Episode.Page.Current-1, b.Show.Season.Episode.Page.Results)
 
 				text = cli.BuildScreen(
 					b.Show.Season.Episode.Page, b.Show.Season.Episode.Index, header, b.Show.Season.Episode.Page.Content, true)
 
+				s.Clear()
 				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 			}
 		}
