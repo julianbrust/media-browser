@@ -2,6 +2,7 @@ package tmdb
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"
 )
 
@@ -94,7 +95,7 @@ func (s Server) SearchTV(queries Queries) (*http.Response, error) {
 	q.Add("language", queries.Language)
 	q.Add("include_adult", strconv.FormatBool(queries.AdultContent))
 	q.Add("page", strconv.FormatInt(int64(queries.Page), 10))
-	q.Add("query", queries.Query)
+	q.Add("query", url.QueryEscape(queries.Query))
 	req.URL.RawQuery = q.Encode()
 
 	res, err := s.Client.Do(req)
