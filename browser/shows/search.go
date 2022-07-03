@@ -25,6 +25,9 @@ func (b Browser) showSearch() {
 
 	dim := cli.GetDimensions(s.Size())
 	cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
+
+	s.ShowCursor(len(header[len(header)-1]), len(header)-1)
+
 	b.Log.Traceln("finished drawing initial search screen")
 
 	for {
@@ -60,6 +63,8 @@ func (b Browser) showSearch() {
 					cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 				} else {
 					s.Fini()
+					b.Show.Index = 0
+
 					err = b.browseShows()
 					if err != nil {
 						s.Fini()
@@ -77,6 +82,8 @@ func (b Browser) showSearch() {
 
 				s.Clear()
 				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
+
+				s.ShowCursor(len(header[len(header)-1]), len(header)-1)
 			}
 			if ev.Key() == tcell.KeyBackspace || ev.Key() == tcell.KeyBackspace2 {
 				inputTrim := len(b.Query)
@@ -91,6 +98,8 @@ func (b Browser) showSearch() {
 
 				s.Clear()
 				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
+
+				s.ShowCursor(len(header[len(header)-1]), len(header)-1)
 			}
 		}
 	}

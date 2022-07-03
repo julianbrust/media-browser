@@ -123,6 +123,8 @@ func (b Browser) browseShows() error {
 				b.Show.Details = show
 
 				s.Fini()
+				b.Show.Season.Index = 0
+
 				err = b.browseSeasons()
 				if err != nil {
 					b.Log.Error(err)
