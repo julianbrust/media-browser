@@ -98,6 +98,8 @@ func (b Browser) browseShows() error {
 			cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 		case *tcell.EventKey:
 			if ev.Key() == tcell.KeyCtrlC {
+				b.Log.Info("exiting app from shows screen with CTRL+C")
+
 				s.Fini()
 				os.Exit(0)
 			}

@@ -40,6 +40,8 @@ func (b Browser) showSearch() {
 			cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 		case *tcell.EventKey:
 			if ev.Key() == tcell.KeyEscape || ev.Key() == tcell.KeyCtrlC {
+				b.Log.Info("exiting app from search screen")
+
 				s.Fini()
 				os.Exit(0)
 			}

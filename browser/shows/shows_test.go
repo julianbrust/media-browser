@@ -12,9 +12,74 @@ import (
 	"testing"
 )
 
-var (
-	Config config.Config
-)
+func TestGetShowResult(t *testing.T) {
+	bytes, err := ioutil.ReadFile("../../testing/tmdb/get-tv.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write(bytes)
+	}))
+
+	defer ts.Close()
+
+	server.BaseURL = ts.URL
+
+	b := Browser{
+		Config: &config.Config{},
+		Query:  "breaking bad",
+		Log:    logrus.New(),
+	}
+	b.Config.Library.Auth.APIKey = "string"
+	b.Config.Library.Settings.AdultContent = false
+	b.Config.Library.Settings.Language = "en-US"
+
+	show, err := b.getShowResult(1)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if show.Results[0].ID != 1396 {
+		t.Errorf("Expected show ID '1396', got %v", show.Results[0].ID)
+	}
+}
+
+func TestGetShow(t *testing.T) {
+	bytes, err := ioutil.ReadFile("../../testing/tmdb/get-show-details.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write(bytes)
+	}))
+
+	defer ts.Close()
+
+	server.BaseURL = ts.URL
+
+	b := Browser{
+		Config: &config.Config{},
+		Log:    logrus.New(),
+	}
+	b.Config.Library.Auth.APIKey = "string"
+	b.Config.Library.Settings.Language = "en-US"
+
+	show, err := b.getShow(1396)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if show.ID != 1396 {
+		t.Errorf("Expected show ID '1396', got %v", show.ID)
+	}
+	if len(show.Seasons) != 6 {
+		t.Errorf("Expected season count '6', got %v", len(show.Seasons))
+	}
+}
 
 func TestGetSearchResults(t *testing.T) {
 	bytes, err := ioutil.ReadFile("../../testing/tmdb/get-tv.json")
@@ -32,7 +97,7 @@ func TestGetSearchResults(t *testing.T) {
 	server.BaseURL = ts.URL
 
 	b := Browser{
-		Config: &Config,
+		Config: &config.Config{},
 		Query:  "breaking bad",
 		Log:    logrus.New(),
 	}
@@ -75,7 +140,7 @@ func TestGetMissingSearchData(t *testing.T) {
 	server.BaseURL = ts.URL
 
 	b := Browser{
-		Config: &Config,
+		Config: &config.Config{},
 		Query:  "breaking bad",
 		Log:    logrus.New(),
 	}
@@ -118,7 +183,7 @@ func TestFilterSelectedData(t *testing.T) {
 	server.BaseURL = ts.URL
 
 	b := Browser{
-		Config: &Config,
+		Config: &config.Config{},
 		Query:  "breaking bad",
 		Log:    logrus.New(),
 	}

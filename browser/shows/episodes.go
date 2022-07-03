@@ -43,6 +43,8 @@ func (b Browser) browseEpisodes() error {
 			cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 		case *tcell.EventKey:
 			if ev.Key() == tcell.KeyCtrlC {
+				b.Log.Info("exiting app from episodes screen with CTRL+C")
+
 				s.Fini()
 				os.Exit(0)
 			}

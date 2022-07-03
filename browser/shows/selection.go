@@ -34,6 +34,8 @@ func (b Browser) showSelection() error {
 			s.Sync()
 		case *tcell.EventKey:
 			if ev.Key() == tcell.KeyCtrlC {
+				b.Log.Info("exiting app from selection screen with CTRL+C")
+
 				s.Fini()
 				os.Exit(0)
 			}
@@ -51,6 +53,8 @@ func (b Browser) showSelection() error {
 				}
 			}
 			if ev.Key() == tcell.KeyEnter {
+				b.Log.Info("exiting app from selection screen with ENTER")
+
 				s.Fini()
 				os.Exit(0)
 			}
