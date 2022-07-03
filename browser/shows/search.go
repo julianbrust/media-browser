@@ -73,17 +73,21 @@ func (b Browser) showSearch() {
 				}
 			}
 			if ev.Key() == tcell.KeyRune {
-				b.Query += string(ev.Rune())
-				b.Log.Tracef("updated search text: %v", b.Query)
+				if len(b.Query) < 50 {
+					b.Query += string(ev.Rune())
+					b.Log.Tracef("updated search text: %v", b.Query)
 
-				header[2] = "  > " + b.Query
+					header[2] = "  > " + b.Query
 
-				text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, []cli.Content{}, false)
+					text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, []cli.Content{}, false)
 
-				s.Clear()
-				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
+					s.Clear()
+					cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 
-				s.ShowCursor(len(header[len(header)-1]), len(header)-1)
+					s.ShowCursor(len(header[len(header)-1]), len(header)-1)
+				} else {
+					b.Log.Trace("query length limit reached")
+				}
 			}
 			if ev.Key() == tcell.KeyBackspace || ev.Key() == tcell.KeyBackspace2 {
 				inputTrim := len(b.Query)
