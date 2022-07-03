@@ -15,11 +15,12 @@ var (
 
 func init() {
 	var err error
-	conf, err = config.Get()
+	conf, err = conf.Get()
 	if err != nil {
 		log.Fatal(err)
 	}
 	log = logger.Init(&conf.Logger.Level)
+	conf.PrintConfig(log)
 }
 
 func main() {
@@ -27,6 +28,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Infoln("config verified")
 
 	b := shows.Browser{
 		Config: &conf,

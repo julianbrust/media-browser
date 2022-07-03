@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 	"os"
 	"path"
@@ -24,9 +25,7 @@ type Config struct {
 
 // Get parses the YAML configuration from the config.yaml file
 // located in the same directory as the app.
-func Get() (Config, error) {
-	conf := Config{}
-
+func (conf Config) Get() (Config, error) {
 	dirname, err := os.Getwd()
 	if err != nil {
 		return Config{}, err
@@ -45,16 +44,22 @@ func Get() (Config, error) {
 		return Config{}, err
 	}
 
-	conf = setDefaults(conf)
+	newConf := conf.setDefaults()
 
-	return conf, nil
+	return newConf, nil
 }
 
 // setDefaults provides some default parameters if nothing is defined.
-func setDefaults(conf Config) Config {
+func (conf Config) setDefaults() Config {
 	if conf.Library.Settings.Language == "" {
 		conf.Library.Settings.Language = "en-US"
 	}
 
 	return conf
+}
+
+func (conf Config) PrintConfig(log *logrus.Logger) {
+	log.Infof("Settings: adultContent: %v", conf.Library.Settings.AdultContent)
+	log.Infof("Settings: language: %v", conf.Library.Settings.Language)
+	log.Infof("Logger: level: %v", conf.Logger.Level)
 }

@@ -44,5 +44,6 @@ type Episode struct {
 
 // Browse initiates drawing the first screen for browsing shows.
 func (b Browser) Browse() {
+	b.Log.Infoln("starting browser")
 	b.showSearch()
 }

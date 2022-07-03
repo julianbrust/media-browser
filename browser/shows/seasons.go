@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/gdamore/tcell/v2"
 	"github.com/julianbrust/media-browser/cli"
-	"github.com/julianbrust/media-browser/config"
 	"github.com/julianbrust/media-browser/tmdb"
 	"math"
 	"os"
@@ -12,10 +11,12 @@ import (
 
 // getSeason retrieves a parsed object for searching for a specific season.
 // It requires config parameters, the id of the show and the number for the required season.
-func getSeason(conf config.Config, id int, season int) (tmdb.ShowSeason, error) {
+func (b Browser) getSeason(id int, season int) (tmdb.ShowSeason, error) {
+	b.Log.Traceln("starting getSeason")
+
 	queries := tmdb.Queries{
-		ApiKey:   conf.Library.Auth.APIKey,
-		Language: conf.Library.Settings.Language,
+		ApiKey:   b.Config.Library.Auth.APIKey,
+		Language: b.Config.Library.Settings.Language,
 	}
 	searchObj := tmdb.ShowSeason{}
 
@@ -50,8 +51,7 @@ func (b Browser) browseSeasons() error {
 		"Browse Seasons:",
 	}
 
-	b.Show.Season.Page = getSeasonResults(
-		b.Show.Season.Page, b.Show.Details.Seasons, b.Show.Season.Page.Current, b.Show.Season.Page.Results)
+	b.Show.Season.Page = b.getSeasonResults(b.Show.Season.Page.Current, b.Show.Season.Page.Results)
 
 	text := cli.BuildScreen(b.Show.Season.Page, b.Show.Season.Index, header, b.Show.Season.Page.Content, true)
 
@@ -75,6 +75,8 @@ func (b Browser) browseSeasons() error {
 				os.Exit(0)
 			}
 			if ev.Key() == tcell.KeyEscape {
+				b.Log.Traceln("seasons: escape")
+
 				s.Fini()
 				err := b.browseShows()
 				if err != nil {
@@ -82,9 +84,11 @@ func (b Browser) browseSeasons() error {
 				}
 			}
 			if ev.Key() == tcell.KeyEnter {
-				currentSeasonNumber := getCurrentSeasonNumber(b.Show.Season, b.Show.Details.Seasons)
+				b.Log.Traceln("select season")
 
-				season, err := getSeason(*b.Config, b.Show.Details.ID, currentSeasonNumber)
+				currentSeasonNumber := b.getCurrentSeasonNumber()
+
+				season, err := b.getSeason(b.Show.Details.ID, currentSeasonNumber)
 				if err != nil {
 					s.Fini()
 					err := b.browseSeasons()
@@ -106,12 +110,13 @@ func (b Browser) browseSeasons() error {
 				}
 			}
 			if ev.Key() == tcell.KeyDown {
+				b.Log.Traceln("seasons: key down")
+
 				if b.Show.Season.Index < len(b.Show.Season.Page.Content)-1 {
 					b.Show.Season.Index++
 				}
 
-				b.Show.Season.Page = getSeasonResults(
-					b.Show.Season.Page, b.Show.Details.Seasons, b.Show.Season.Page.Current, b.Show.Season.Page.Results)
+				b.Show.Season.Page = b.getSeasonResults(b.Show.Season.Page.Current, b.Show.Season.Page.Results)
 
 				text = cli.BuildScreen(b.Show.Season.Page, b.Show.Season.Index, header, b.Show.Season.Page.Content, true)
 
@@ -119,12 +124,13 @@ func (b Browser) browseSeasons() error {
 				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 			}
 			if ev.Key() == tcell.KeyUp {
+				b.Log.Traceln("seasons: key up")
+
 				if b.Show.Season.Index > 0 {
 					b.Show.Season.Index--
 				}
 
-				b.Show.Season.Page = getSeasonResults(
-					b.Show.Season.Page, b.Show.Details.Seasons, b.Show.Season.Page.Current, b.Show.Season.Page.Results)
+				b.Show.Season.Page = b.getSeasonResults(b.Show.Season.Page.Current, b.Show.Season.Page.Results)
 
 				text = cli.BuildScreen(b.Show.Season.Page, b.Show.Season.Index, header, b.Show.Season.Page.Content, true)
 
@@ -132,8 +138,9 @@ func (b Browser) browseSeasons() error {
 				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 			}
 			if ev.Key() == tcell.KeyRight {
-				b.Show.Season.Page = getSeasonResults(
-					b.Show.Season.Page, b.Show.Details.Seasons, b.Show.Season.Page.Current+1, b.Show.Season.Page.Results)
+				b.Log.Traceln("seasons: key right")
+
+				b.Show.Season.Page = b.getSeasonResults(b.Show.Season.Page.Current+1, b.Show.Season.Page.Results)
 
 				if b.Show.Season.Index > len(b.Show.Season.Page.Content)-1 {
 					b.Show.Season.Index = len(b.Show.Season.Page.Content) - 1
@@ -145,8 +152,9 @@ func (b Browser) browseSeasons() error {
 				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
 			}
 			if ev.Key() == tcell.KeyLeft {
-				b.Show.Season.Page = getSeasonResults(
-					b.Show.Season.Page, b.Show.Details.Seasons, b.Show.Season.Page.Current-1, b.Show.Season.Page.Results)
+				b.Log.Traceln("seasons: key left")
+
+				b.Show.Season.Page = b.getSeasonResults(b.Show.Season.Page.Current-1, b.Show.Season.Page.Results)
 
 				text = cli.BuildScreen(b.Show.Season.Page, b.Show.Season.Index, header, b.Show.Season.Page.Content, true)
 
@@ -159,19 +167,19 @@ func (b Browser) browseSeasons() error {
 
 // getSeasonResults creates a new cli.Page based on the provided season data.
 // It defines the data for the Page based on the requested page and amount of results to display.
-func getSeasonResults(seasonPage cli.Page, seasons []tmdb.ShowDetailSeason, page int, results int) cli.Page {
+func (b Browser) getSeasonResults(page int, results int) cli.Page {
 	startIndex := results * (page - 1)
-	if startIndex < 0 || startIndex > len(seasons) {
-		return seasonPage
+	if startIndex < 0 || startIndex > len(b.Show.Details.Seasons) {
+		return b.Show.Season.Page
 	}
 	endIndex := startIndex + results - 1
-	if endIndex > len(seasons) {
-		endIndex = len(seasons)
+	if endIndex > len(b.Show.Details.Seasons) {
+		endIndex = len(b.Show.Details.Seasons)
 	}
 
 	var content []cli.Content
 
-	for i, season := range seasons {
+	for i, season := range b.Show.Details.Seasons {
 		if i >= startIndex && i <= endIndex {
 			content = append(content, cli.Content{
 				Display: season.Name,
@@ -180,7 +188,7 @@ func getSeasonResults(seasonPage cli.Page, seasons []tmdb.ShowDetailSeason, page
 		}
 	}
 
-	maxTabs := math.Ceil(float64(len(seasons)) / float64(results))
+	maxTabs := math.Ceil(float64(len(b.Show.Details.Seasons)) / float64(results))
 
 	return cli.Page{
 		Current: page,
@@ -192,11 +200,11 @@ func getSeasonResults(seasonPage cli.Page, seasons []tmdb.ShowDetailSeason, page
 
 // getCurrentSeasonNumber returns the seasonNumber in the retrieved data of seasons based on the
 // currently selected season.
-func getCurrentSeasonNumber(season Season, seasons []tmdb.ShowDetailSeason) int {
+func (b Browser) getCurrentSeasonNumber() int {
 	var seasonNumber int
 
-	for _, s := range seasons {
-		if s.ID == season.Page.Content[season.Index].ID {
+	for _, s := range b.Show.Details.Seasons {
+		if s.ID == b.Show.Season.Page.Content[b.Show.Season.Index].ID {
 			seasonNumber = s.SeasonNumber
 		}
 	}

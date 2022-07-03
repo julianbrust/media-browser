@@ -25,6 +25,7 @@ func (b Browser) showSearch() {
 
 	dim := cli.GetDimensions(s.Size())
 	cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
+	b.Log.Traceln("finished drawing initial search screen")
 
 	for {
 		s.Show()
@@ -43,8 +44,10 @@ func (b Browser) showSearch() {
 				os.Exit(0)
 			}
 			if ev.Key() == tcell.KeyEnter {
+				b.Log.Tracef("start search with: %v", b.Query)
+
 				b.Search = []tmdb.Show{}
-				b.Search, b.Show.Page = getSearchResults(b, 1, 10)
+				b.Search, b.Show.Page = b.getSearchResults(1, 10)
 
 				s.Fini()
 				err := b.browseShows()
@@ -55,6 +58,8 @@ func (b Browser) showSearch() {
 			}
 			if ev.Key() == tcell.KeyRune {
 				b.Query += string(ev.Rune())
+				b.Log.Tracef("updated search text: %v", b.Query)
+
 				header[2] = "> " + b.Query
 
 				text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, []cli.Content{}, false)
@@ -67,6 +72,8 @@ func (b Browser) showSearch() {
 				if inputTrim > 0 {
 					b.Query = b.Query[:inputTrim-1]
 				}
+				b.Log.Tracef("updated search text: %v", b.Query)
+
 				header[2] = "> " + b.Query
 
 				text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, []cli.Content{}, false)

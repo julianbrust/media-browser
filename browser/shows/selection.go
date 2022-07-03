@@ -19,7 +19,7 @@ func (b Browser) showSelection() error {
 		"You selected:",
 	}
 
-	text := getSelection(b.Show, header)
+	text := b.getSelection(header)
 
 	dim := cli.GetDimensions(s.Size())
 	cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
@@ -33,7 +33,13 @@ func (b Browser) showSelection() error {
 		case *tcell.EventResize:
 			s.Sync()
 		case *tcell.EventKey:
-			if ev.Key() == tcell.KeyEscape || ev.Key() == tcell.KeyCtrlC {
+			if ev.Key() == tcell.KeyCtrlC {
+				s.Fini()
+				os.Exit(0)
+			}
+			if ev.Key() == tcell.KeyEscape {
+				b.Log.Traceln("selection: escape")
+
 				s.Fini()
 				err := b.browseEpisodes()
 				if err != nil {
@@ -49,10 +55,12 @@ func (b Browser) showSelection() error {
 }
 
 // getSelection combines all the information about the current selection in lines to display.
-func getSelection(show Show, header []string) []string {
-	showName := show.Details.Name
-	seasonName := show.Season.Details.Name
-	epDetails := show.Season.Episode.Details
+func (b Browser) getSelection(header []string) []string {
+	b.Log.Traceln("start getSelection")
+
+	showName := b.Show.Details.Name
+	seasonName := b.Show.Season.Details.Name
+	epDetails := b.Show.Season.Episode.Details
 
 	text := header
 
