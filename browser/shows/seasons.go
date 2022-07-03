@@ -20,7 +20,7 @@ func (b Browser) getSeason(id int, season int) (tmdb.ShowSeason, error) {
 	}
 	searchObj := tmdb.ShowSeason{}
 
-	searchRes, err := tmdb.GetTVShowSeason(id, season, queries)
+	searchRes, err := server.GetTVShowSeason(id, season, queries)
 
 	if err != nil {
 		return searchObj, err

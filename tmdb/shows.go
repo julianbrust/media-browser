@@ -62,14 +62,18 @@ type ShowEpisode struct {
 	Overview string `json:"overview"`
 }
 
-func GetTVLatest(queries Queries) (*http.Response, error) {
-	req, _ := http.NewRequest("GET", "https://api.themoviedb.org/3/tv/latest", nil)
+func (s Server) GetTVLatest(queries Queries) (*http.Response, error) {
+	if s.BaseURL == "" {
+		s.BaseURL = "https://api.themoviedb.org/3"
+	}
+
+	req, _ := http.NewRequest("GET", s.BaseURL+"/tv/latest", nil)
 
 	q := req.URL.Query()
 	q.Add("api_key", queries.ApiKey)
 	req.URL.RawQuery = q.Encode()
 
-	res, err := Client.Do(req)
+	res, err := s.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +82,12 @@ func GetTVLatest(queries Queries) (*http.Response, error) {
 }
 
 // SearchTV runs a request to tmdb for GET /search/tv.
-func SearchTV(queries Queries) (*http.Response, error) {
-	req, _ := http.NewRequest("GET", "https://api.themoviedb.org/3/search/tv", nil)
+func (s Server) SearchTV(queries Queries) (*http.Response, error) {
+	if s.BaseURL == "" {
+		s.BaseURL = "https://api.themoviedb.org/3"
+	}
+
+	req, _ := http.NewRequest("GET", s.BaseURL+"/search/tv", nil)
 
 	q := req.URL.Query()
 	q.Add("api_key", queries.ApiKey)
@@ -89,7 +97,7 @@ func SearchTV(queries Queries) (*http.Response, error) {
 	q.Add("query", queries.Query)
 	req.URL.RawQuery = q.Encode()
 
-	res, err := Client.Do(req)
+	res, err := s.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -98,8 +106,12 @@ func SearchTV(queries Queries) (*http.Response, error) {
 }
 
 // GetTVShow runs a request to tmdb for GET /tv/{tv_id}.
-func GetTVShow(id int, queries Queries) (*http.Response, error) {
-	addr := "https://api.themoviedb.org/3/tv/" + strconv.FormatInt(int64(id), 10)
+func (s Server) GetTVShow(id int, queries Queries) (*http.Response, error) {
+	if s.BaseURL == "" {
+		s.BaseURL = "https://api.themoviedb.org/3"
+	}
+
+	addr := s.BaseURL + "/tv/" + strconv.FormatInt(int64(id), 10)
 	req, _ := http.NewRequest("GET", addr, nil)
 
 	q := req.URL.Query()
@@ -107,7 +119,7 @@ func GetTVShow(id int, queries Queries) (*http.Response, error) {
 	q.Add("language", queries.Language)
 	req.URL.RawQuery = q.Encode()
 
-	res, err := Client.Do(req)
+	res, err := s.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -116,8 +128,12 @@ func GetTVShow(id int, queries Queries) (*http.Response, error) {
 }
 
 // GetTVShowSeason runs a request to tmdb for GET /tv/{tv_id}/season/{season_number}.
-func GetTVShowSeason(id int, season int, queries Queries) (*http.Response, error) {
-	addr := "https://api.themoviedb.org/3/tv/" + strconv.FormatInt(int64(id), 10) +
+func (s Server) GetTVShowSeason(id int, season int, queries Queries) (*http.Response, error) {
+	if s.BaseURL == "" {
+		s.BaseURL = "https://api.themoviedb.org/3"
+	}
+
+	addr := s.BaseURL + "/tv/" + strconv.FormatInt(int64(id), 10) +
 		"/season/" + strconv.FormatInt(int64(season), 10)
 
 	req, _ := http.NewRequest("GET", addr, nil)
@@ -127,7 +143,7 @@ func GetTVShowSeason(id int, season int, queries Queries) (*http.Response, error
 	q.Add("language", queries.Language)
 	req.URL.RawQuery = q.Encode()
 
-	res, err := Client.Do(req)
+	res, err := s.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}

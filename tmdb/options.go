@@ -39,7 +39,7 @@ func verifyLanguage(lang string) error {
 func verifyKey(key string) error {
 	queries := Queries{ApiKey: key}
 
-	res, err := GetTVLatest(queries)
+	res, err := server.GetTVLatest(queries)
 	if err != nil {
 		return err
 	}

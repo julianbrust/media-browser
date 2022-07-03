@@ -5,6 +5,7 @@ import (
 	"github.com/julianbrust/media-browser/config"
 	"github.com/julianbrust/media-browser/tmdb"
 	"github.com/sirupsen/logrus"
+	"net/http"
 )
 
 // Browser represents the object that holds all the data for the current search through shows,
@@ -40,6 +41,16 @@ type Episode struct {
 	Index    int              // the current index of the selected episode
 	Details  tmdb.ShowEpisode // details about the episode provided by the tmdb API
 	ID       int              // ID of the current episode
+}
+
+var (
+	server tmdb.Server
+)
+
+func init() {
+	server = tmdb.Server{
+		Client: &http.Client{},
+	}
 }
 
 // Browse initiates drawing the first screen for browsing shows.

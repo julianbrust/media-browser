@@ -2,7 +2,6 @@ package shows
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gdamore/tcell/v2"
 	"github.com/julianbrust/media-browser/cli"
 	"github.com/julianbrust/media-browser/tmdb"
@@ -22,7 +21,7 @@ func (b Browser) getShowResult(page int) (tmdb.Show, error) {
 		Query:        b.Query,
 		Page:         page,
 	}
-	searchRes, err := tmdb.SearchTV(queries)
+	searchRes, err := server.SearchTV(queries)
 	if err != nil {
 		return tmdb.Show{}, err
 	}
@@ -47,7 +46,7 @@ func (b Browser) getShow(id int) (tmdb.ShowDetail, error) {
 		Language: b.Config.Library.Settings.Language,
 	}
 	searchObj := tmdb.ShowDetail{}
-	searchRes, err := tmdb.GetTVShow(id, queries)
+	searchRes, err := server.GetTVShow(id, queries)
 	if err != nil {
 		return searchObj, err
 	}
@@ -230,9 +229,14 @@ func (b Browser) getMissingSearchData(endIndex int) []tmdb.Show {
 			reqPage := len(b.Search) + 1
 			newContent, err := b.getShowResult(reqPage)
 			if err != nil {
-				fmt.Println(err)
+				b.Log.Error(err)
+				break
 			}
 			b.Search = append(b.Search, newContent)
+
+			if newContent.TotalResults < endIndex {
+				break
+			}
 		}
 
 		for _, entry := range b.Search {
@@ -265,7 +269,7 @@ func (b Browser) filterSelectedData(page int, results int, startIndex int, endIn
 		}
 	}
 
-	maxTabs := math.Round(float64(len(data)) / float64(results))
+	maxTabs := math.Ceil(float64(len(data)) / float64(results))
 
 	resPage := cli.Page{
 		Current: page,

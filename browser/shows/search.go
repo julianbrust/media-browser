@@ -4,6 +4,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/julianbrust/media-browser/cli"
 	"github.com/julianbrust/media-browser/tmdb"
+	"net/url"
 	"os"
 )
 
@@ -57,7 +58,7 @@ func (b Browser) showSearch() {
 				}
 			}
 			if ev.Key() == tcell.KeyRune {
-				b.Query += string(ev.Rune())
+				b.Query += url.QueryEscape(string(ev.Rune()))
 				b.Log.Tracef("updated search text: %v", b.Query)
 
 				header[2] = "> " + b.Query

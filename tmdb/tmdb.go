@@ -2,14 +2,17 @@ package tmdb
 
 import "net/http"
 
-type HTTPClient interface {
-	Do(req *http.Request) (*http.Response, error)
+type Server struct {
+	Client  *http.Client
+	BaseURL string
 }
 
 var (
-	Client HTTPClient
+	server Server
 )
 
 func init() {
-	Client = &http.Client{}
+	server = Server{
+		Client: &http.Client{},
+	}
 }
