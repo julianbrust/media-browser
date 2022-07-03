@@ -61,6 +61,8 @@ type ShowEpisode struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	Overview string `json:"overview"`
+	AirDate  string `json:"air_date"`
+	Runtime  int    `json:"runtime"`
 }
 
 func (s Server) GetTVLatest(queries Queries) (*http.Response, error) {

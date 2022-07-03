@@ -4,6 +4,8 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/julianbrust/media-browser/cli"
 	"os"
+	"strconv"
+	"time"
 )
 
 // showSelection starts and handles the CLI screen for displaying the current selection.
@@ -73,7 +75,23 @@ func (b Browser) getSelection(header []string) []string {
 	text := header
 
 	text = append(text, "  "+showName+": "+seasonName+": "+epDetails.Name)
-	text = append(text, "  "+"Description: "+epDetails.Overview)
+	if epDetails.Overview != "" {
+		text = append(text, "  "+"Description: "+epDetails.Overview)
+	}
+	if epDetails.AirDate != "" {
+		t, err := time.Parse(YYYYMMDD, epDetails.AirDate)
+		if err == nil {
+			text = append(text, "  "+"Air Date: "+t.Format(TextDate))
+		}
+	}
+	if epDetails.Runtime != 0 {
+		text = append(text, "  "+"Runtime: "+strconv.FormatInt(int64(epDetails.Runtime), 10)+" min")
+	}
 
 	return text
 }
+
+const (
+	YYYYMMDD = "2006-01-02"
+	TextDate = "January 2, 2006"
+)
