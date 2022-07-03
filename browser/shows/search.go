@@ -4,7 +4,6 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/julianbrust/media-browser/cli"
 	"github.com/julianbrust/media-browser/tmdb"
-	"net/url"
 	"os"
 )
 
@@ -48,17 +47,26 @@ func (b Browser) showSearch() {
 				b.Log.Tracef("start search with: %v", b.Query)
 
 				b.Search = []tmdb.Show{}
-				b.Search, b.Show.Page = b.getSearchResults(1, 10)
+				var err error
 
-				s.Fini()
-				err := b.browseShows()
+				b.Search, b.Show.Page, err = b.getSearchResults(1, 10)
 				if err != nil {
+					b.Log.Trace(err)
+					text = cli.BuildErrorScreen(header, err.Error())
+
+					s.Clear()
+					cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
+				} else {
 					s.Fini()
-					b.showSearch()
+					err = b.browseShows()
+					if err != nil {
+						s.Fini()
+						b.showSearch()
+					}
 				}
 			}
 			if ev.Key() == tcell.KeyRune {
-				b.Query += url.QueryEscape(string(ev.Rune()))
+				b.Query += string(ev.Rune())
 				b.Log.Tracef("updated search text: %v", b.Query)
 
 				header[2] = "> " + b.Query

@@ -119,6 +119,19 @@ func BuildBrowsableList(page Page, index int, content []Content) []string {
 	return entries
 }
 
+// BuildErrorScreen creates a list of lines consisting of the header and the error message.
+func BuildErrorScreen(header []string, err string) []string {
+	var newText []string
+
+	for _, line := range header {
+		newText = append(newText, line)
+	}
+
+	newText = append(newText, "  "+err)
+
+	return newText
+}
+
 // DrawScreen draws a tcell screen line by line.
 func DrawScreen(screen tcell.Screen, style tcell.Style, dim ScreenDimensions, text []string) {
 	row := dim.Y1

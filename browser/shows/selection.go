@@ -43,7 +43,11 @@ func (b Browser) showSelection() error {
 				s.Fini()
 				err := b.browseEpisodes()
 				if err != nil {
-					return err
+					b.Log.Error(err)
+					err := b.showSelection()
+					if err != nil {
+						b.Log.Fatal(err)
+					}
 				}
 			}
 			if ev.Key() == tcell.KeyEnter {

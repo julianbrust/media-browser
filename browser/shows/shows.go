@@ -2,6 +2,7 @@ package shows
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/gdamore/tcell/v2"
 	"github.com/julianbrust/media-browser/cli"
 	"github.com/julianbrust/media-browser/tmdb"
@@ -31,6 +32,10 @@ func (b Browser) getShowResult(page int) (tmdb.Show, error) {
 	err = searchBody.Decode(&searchObj)
 	if err != nil {
 		return tmdb.Show{}, err
+	}
+
+	if len(searchObj.Results) == 0 {
+		return searchObj, errors.New("no results")
 	}
 
 	return searchObj, nil
@@ -102,6 +107,9 @@ func (b Browser) browseShows() error {
 				b.showSearch()
 			}
 			if ev.Key() == tcell.KeyEnter {
+				if b.Show.Error {
+					break
+				}
 				b.Log.Traceln("select show")
 
 				show, err := b.getShow(b.Show.Page.Content[b.Show.Index].ID)
@@ -115,10 +123,10 @@ func (b Browser) browseShows() error {
 				s.Fini()
 				err = b.browseSeasons()
 				if err != nil {
-					s.Fini()
+					b.Log.Error(err)
 					err := b.browseShows()
 					if err != nil {
-						return err
+						b.Log.Fatal(err)
 					}
 				}
 				os.Exit(1)
@@ -130,9 +138,15 @@ func (b Browser) browseShows() error {
 					b.Show.Index++
 				}
 
-				b.Search, b.Show.Page = b.getSearchResults(b.Show.Page.Current, b.Show.Page.Results)
-
-				text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, b.Show.Page.Content, true)
+				var err error
+				b.Search, b.Show.Page, err = b.getSearchResults(b.Show.Page.Current, b.Show.Page.Results)
+				if err != nil {
+					b.Show.Error = true
+					text = cli.BuildErrorScreen(header, err.Error())
+				} else {
+					b.Show.Error = false
+					text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, b.Show.Page.Content, true)
+				}
 
 				s.Clear()
 				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
@@ -144,9 +158,16 @@ func (b Browser) browseShows() error {
 					b.Show.Index--
 				}
 
-				b.Search, b.Show.Page = b.getSearchResults(b.Show.Page.Current, b.Show.Page.Results)
+				var err error
 
-				text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, b.Show.Page.Content, true)
+				b.Search, b.Show.Page, err = b.getSearchResults(b.Show.Page.Current, b.Show.Page.Results)
+				if err != nil {
+					b.Show.Error = true
+					text = cli.BuildErrorScreen(header, err.Error())
+				} else {
+					b.Show.Error = false
+					text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, b.Show.Page.Content, true)
+				}
 
 				s.Clear()
 				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
@@ -154,13 +175,21 @@ func (b Browser) browseShows() error {
 			if ev.Key() == tcell.KeyRight {
 				b.Log.Traceln("shows: key right")
 
-				b.Search, b.Show.Page = b.getSearchResults(b.Show.Page.Current+1, b.Show.Page.Results)
+				var err error
 
-				if b.Show.Index > len(b.Show.Page.Content)-1 {
-					b.Show.Index = len(b.Show.Page.Content) - 1
+				b.Search, b.Show.Page, err = b.getSearchResults(b.Show.Page.Current+1, b.Show.Page.Results)
+				if err != nil {
+					b.Show.Error = true
+					text = cli.BuildErrorScreen(header, err.Error())
+				} else {
+					b.Show.Error = false
+
+					if b.Show.Index > len(b.Show.Page.Content)-1 {
+						b.Show.Index = len(b.Show.Page.Content) - 1
+					}
+
+					text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, b.Show.Page.Content, true)
 				}
-
-				text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, b.Show.Page.Content, true)
 
 				s.Clear()
 				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
@@ -168,9 +197,16 @@ func (b Browser) browseShows() error {
 			if ev.Key() == tcell.KeyLeft {
 				b.Log.Traceln("shows: key left")
 
-				b.Search, b.Show.Page = b.getSearchResults(b.Show.Page.Current-1, b.Show.Page.Results)
+				var err error
 
-				text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, b.Show.Page.Content, true)
+				b.Search, b.Show.Page, err = b.getSearchResults(b.Show.Page.Current-1, b.Show.Page.Results)
+				if err != nil {
+					b.Show.Error = true
+					text = cli.BuildErrorScreen(header, err.Error())
+				} else {
+					b.Show.Error = false
+					text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, b.Show.Page.Content, true)
+				}
 
 				s.Clear()
 				cli.DrawScreen(b.CLI.Screen, b.CLI.Style, dim, text)
@@ -181,20 +217,24 @@ func (b Browser) browseShows() error {
 
 // getSearchResults retrieves all necessary data objects for a shows search and creates a cli.Page
 // with the results for a specific page and amount of results.
-func (b Browser) getSearchResults(page int, results int) ([]tmdb.Show, cli.Page) {
+func (b Browser) getSearchResults(page int, results int) ([]tmdb.Show, cli.Page, error) {
 	b.Log.Traceln("starting getSearchResults")
 
 	startIndex := results * (page - 1)
 	if startIndex < 0 {
-		return b.Search, b.Show.Page
+		return b.Search, b.Show.Page, nil
 	}
 
 	endIndex := startIndex + results - 1
 
-	b.Search = b.getMissingSearchData(endIndex)
+	var err error
+	b.Search, err = b.getMissingSearchData(endIndex)
+	if err != nil {
+		return b.Search, b.Show.Page, err
+	}
 
 	if startIndex > b.Search[0].TotalResults {
-		return b.Search, b.Show.Page
+		return b.Search, b.Show.Page, nil
 	}
 	if endIndex > b.Search[0].TotalResults {
 		endIndex = b.Search[0].TotalResults
@@ -204,16 +244,16 @@ func (b Browser) getSearchResults(page int, results int) ([]tmdb.Show, cli.Page)
 
 	resPage.Total = int(math.Ceil(float64(b.Search[0].TotalResults) / float64(results)))
 
-	return b.Search, resPage
+	return b.Search, resPage, nil
 }
 
 // getMissingSearchData retrieves additional data for a shows search based on the required endIndex
 // of the objects to display.
-func (b Browser) getMissingSearchData(endIndex int) []tmdb.Show {
+func (b Browser) getMissingSearchData(endIndex int) ([]tmdb.Show, error) {
 	b.Log.Traceln("starting getMissingSearchData")
 
 	if len(b.Search) > 0 && endIndex > b.Search[0].TotalResults {
-		return b.Search
+		return b.Search, nil
 	}
 
 	currentEndIndex := 0
@@ -230,7 +270,7 @@ func (b Browser) getMissingSearchData(endIndex int) []tmdb.Show {
 			newContent, err := b.getShowResult(reqPage)
 			if err != nil {
 				b.Log.Error(err)
-				break
+				return nil, err
 			}
 			b.Search = append(b.Search, newContent)
 
@@ -244,7 +284,7 @@ func (b Browser) getMissingSearchData(endIndex int) []tmdb.Show {
 		}
 	}
 
-	return b.Search
+	return b.Search, nil
 }
 
 // filterSelectedData creates a new cli.Page based on the provided shows search data.

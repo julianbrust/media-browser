@@ -24,6 +24,7 @@ type Show struct {
 	cli.Page                 // the current results' page to display
 	Index    int             // the current index of the selected show
 	Details  tmdb.ShowDetail // details about the show provided by the tmdb API
+	Error    bool            // indicating if there is an error currently
 	Season                   // object containing all the information for the currently selected season
 }
 

@@ -80,7 +80,11 @@ func (b Browser) browseSeasons() error {
 				s.Fini()
 				err := b.browseShows()
 				if err != nil {
-					return err
+					b.Log.Error(err)
+					err := b.browseSeasons()
+					if err != nil {
+						b.Log.Fatal(err)
+					}
 				}
 			}
 			if ev.Key() == tcell.KeyEnter {
@@ -91,9 +95,9 @@ func (b Browser) browseSeasons() error {
 				season, err := b.getSeason(b.Show.Details.ID, currentSeasonNumber)
 				if err != nil {
 					s.Fini()
-					err := b.browseSeasons()
+					err = b.browseSeasons()
 					if err != nil {
-						return err
+						b.Log.Fatal(err)
 					}
 				}
 
@@ -102,10 +106,10 @@ func (b Browser) browseSeasons() error {
 				s.Fini()
 				err = b.browseEpisodes()
 				if err != nil {
-					s.Fini()
+					b.Log.Error(err)
 					err := b.browseSeasons()
 					if err != nil {
-						return err
+						b.Log.Fatal(err)
 					}
 				}
 			}

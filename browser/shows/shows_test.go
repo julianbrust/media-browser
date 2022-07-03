@@ -40,7 +40,10 @@ func TestGetSearchResults(t *testing.T) {
 	b.Config.Library.Settings.AdultContent = false
 	b.Config.Library.Settings.Language = "en-US"
 
-	shows, page := b.getSearchResults(1, 5)
+	shows, page, err := b.getSearchResults(1, 5)
+	if err != nil {
+		t.Error(err)
+	}
 
 	if len(shows) > 0 && len(shows[0].Results) > 0 {
 		if shows[0].Results[0].ID != 1396 {
@@ -80,7 +83,10 @@ func TestGetMissingSearchData(t *testing.T) {
 	b.Config.Library.Settings.AdultContent = false
 	b.Config.Library.Settings.Language = "en-US"
 
-	shows, page := b.getSearchResults(1, 5)
+	shows, page, err := b.getSearchResults(1, 5)
+	if err != nil {
+		t.Error(err)
+	}
 
 	if len(shows) > 0 && len(shows[0].Results) > 0 {
 		if shows[0].Results[0].ID != 1396 {
