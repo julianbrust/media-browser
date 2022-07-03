@@ -6,11 +6,12 @@ import (
 	"github.com/julianbrust/media-browser/logger"
 	"github.com/julianbrust/media-browser/tmdb"
 	"github.com/sirupsen/logrus"
+	"log"
 )
 
 var (
-	log  *logrus.Logger
-	conf config.Config
+	customLog *logrus.Logger
+	conf      config.Config
 )
 
 func init() {
@@ -19,8 +20,8 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log = logger.Init(&conf.Logger.Level)
-	conf.PrintConfig(log)
+	customLog = logger.Init(&conf.Logger.Level)
+	conf.PrintConfig(customLog)
 }
 
 func main() {
@@ -28,11 +29,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Infoln("config verified")
+	customLog.Infoln("config verified")
 
 	b := shows.Browser{
 		Config: &conf,
-		Log:    log,
+		Log:    customLog,
 	}
 	b.Browse()
 }

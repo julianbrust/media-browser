@@ -18,7 +18,7 @@ func (b Browser) showSearch() {
 	header := []string{
 		"[Type in your Search | ENTER: Confirm | ESC, CTRL+C: Quit]",
 		"Search TV shows:",
-		"> " + b.Query,
+		"  > " + b.Query,
 	}
 
 	text := cli.BuildScreen(cli.Page{}, b.Show.Index, header, []cli.Content{}, false)
@@ -71,7 +71,7 @@ func (b Browser) showSearch() {
 				b.Query += string(ev.Rune())
 				b.Log.Tracef("updated search text: %v", b.Query)
 
-				header[2] = "> " + b.Query
+				header[2] = "  > " + b.Query
 
 				text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, []cli.Content{}, false)
 
@@ -85,7 +85,7 @@ func (b Browser) showSearch() {
 				}
 				b.Log.Tracef("updated search text: %v", b.Query)
 
-				header[2] = "> " + b.Query
+				header[2] = "  > " + b.Query
 
 				text = cli.BuildScreen(b.Show.Page, b.Show.Index, header, []cli.Content{}, false)
 

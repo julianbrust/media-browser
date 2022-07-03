@@ -72,8 +72,8 @@ func (b Browser) getSelection(header []string) []string {
 
 	text := header
 
-	text = append(text, showName+": "+seasonName+": "+epDetails.Name)
-	text = append(text, "Description: "+epDetails.Overview)
+	text = append(text, "  "+showName+": "+seasonName+": "+epDetails.Name)
+	text = append(text, "  "+"Description: "+epDetails.Overview)
 
 	return text
 }
