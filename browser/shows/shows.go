@@ -237,7 +237,7 @@ func (b Browser) getSearchResults(page int, results int) ([]tmdb.Show, cli.Page,
 		return b.Search, b.Show.Page, err
 	}
 
-	if startIndex > b.Search[0].TotalResults {
+	if startIndex >= b.Search[0].TotalResults {
 		return b.Search, b.Show.Page, nil
 	}
 	if endIndex > b.Search[0].TotalResults {
