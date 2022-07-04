@@ -35,12 +35,12 @@ logger:
 
 The following arguments can be passed to the command:
 
-| Key        | Value                                                                | Description                  |
-|------------|----------------------------------------------------------------------|------------------------------|
-| --key      | string                                                               | API key                      |
-| --adult    | true &#124; false                                                    | enable/disable adult content |
-| --language | en-US                                                                | language to be used          |
-| --log      | trace &#124; debug &#124; info &#124; warn &#124; error &#124; fatal | log level                    |
+| Key        | Value                                                                            | Description                              |
+|------------|----------------------------------------------------------------------------------|------------------------------------------|
+| --key      | `<your-key>`                                                                     | API key                                  |
+| --adult    | `true` &#124; `false`                                                            | enable/disable adult content             |
+| --language | `en-US`                                                                          | language to be used, as ISO 639-1 string |
+| --log      | `trace` &#124; `debug` &#124; `info` &#124; `warn` &#124; `error` &#124; `fatal` | log level                                |
 
 
 Example `go run . --key <your-key> --adult false --language en-US --log info`
