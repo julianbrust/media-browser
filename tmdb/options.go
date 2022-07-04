@@ -37,6 +37,10 @@ func verifyLanguage(lang string) error {
 
 // verifyKey runs a test request to verify the provided API Key.
 func verifyKey(key string) error {
+	if key == "" {
+		return errors.New("missing API key")
+	}
+
 	queries := Queries{ApiKey: key}
 
 	res, err := server.GetTVLatest(queries)
