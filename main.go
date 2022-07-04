@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/julianbrust/media-browser/browser/shows"
+	"github.com/julianbrust/media-browser/cli"
 	"github.com/julianbrust/media-browser/config"
 	"github.com/julianbrust/media-browser/logger"
 	"github.com/julianbrust/media-browser/tmdb"
@@ -20,6 +21,8 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	cli.GetArgs(&conf)
+
 	customLog = logger.Init(&conf.Logger.Level)
 	conf.PrintConfig(customLog)
 }
