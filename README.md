@@ -23,7 +23,7 @@ library:
   settings:
     # toggle to allow adult content as part of query results
     adultContent: false
-    # toggle for the display language of the results (as ISO 639-1)
+    # the display language of the results (as ISO 639-1)
     language: en-US
 logger:
   # desired log level
@@ -35,12 +35,12 @@ logger:
 
 The following arguments can be passed to the command:
 
-| Key        | Description                  |
-|------------|------------------------------|
-| --key      | API key                      |
-| --adult    | enable/disable adult content |
-| --language | language to be used          |
-| --log      | log level                    |
+| Key        | Value                                                                | Description                  |
+|------------|----------------------------------------------------------------------|------------------------------|
+| --key      | string                                                               | API key                      |
+| --adult    | true &#124; false                                                    | enable/disable adult content |
+| --language | en-US                                                                | language to be used          |
+| --log      | trace &#124; debug &#124; info &#124; warn &#124; error &#124; fatal | log level                    |
 
 
 Example `go run . --key <your-key> --adult false --language en-US --log info`
