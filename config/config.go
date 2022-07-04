@@ -25,34 +25,31 @@ type Config struct {
 
 // Get parses the YAML configuration from the config.yaml file
 // located in the same directory as the app.
-func (conf Config) Get() (Config, error) {
-	dirname, err := os.Getwd()
-	if err != nil {
-		return Config{}, err
-	}
+func (conf Config) Get() Config {
+	dirname, _ := os.Getwd()
+
 	config := "config.yaml"
 
-	file, err := os.Open(path.Join(dirname, config))
-	if err != nil {
-		return Config{}, err
-	}
+	file, _ := os.Open(path.Join(dirname, config))
+
 	defer file.Close()
 
 	d := yaml.NewDecoder(file)
 
-	if err = d.Decode(&conf); err != nil {
-		return Config{}, err
-	}
+	_ = d.Decode(&conf)
 
 	newConf := conf.setDefaults()
 
-	return newConf, nil
+	return newConf
 }
 
 // setDefaults provides some default parameters if nothing is defined.
 func (conf Config) setDefaults() Config {
 	if conf.Library.Settings.Language == "" {
 		conf.Library.Settings.Language = "en-US"
+	}
+	if conf.Logger.Level == "" {
+		conf.Logger.Level = "info"
 	}
 
 	return conf

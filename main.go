@@ -16,11 +16,8 @@ var (
 )
 
 func init() {
-	var err error
-	conf, err = conf.Get()
-	if err != nil {
-		log.Fatal(err)
-	}
+	conf = conf.Get()
+
 	cli.GetArgs(&conf)
 
 	customLog = logger.Init(&conf.Logger.Level)
