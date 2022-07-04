@@ -9,7 +9,9 @@ It displays detailed information about the selected episode.
 
 ## How to run it
 
-The CLI requires a config file for the API key and other optional parameters.
+### Config file
+
+The CLI can be set up with a config file for the API key and other optional parameters.
 
 Create a file `config.yaml` in the same directory as the app. `config-example.yaml` can be used as a reference.
 
@@ -29,7 +31,19 @@ logger:
   level: info
 ```
 
-Run the app with `go run .`
+### Command-line Arguments
+
+The following arguments can be passed to the command:
+
+| Key        | Description                  |
+|------------|------------------------------|
+| --key      | API key                      |
+| --adult    | enable/disable adult content |
+| --language | language to be used          |
+| --log      | log level                    |
+
+
+Example `go run . --key <your-key> --adult false --language en-US --log info`
 
 ## Logging
 

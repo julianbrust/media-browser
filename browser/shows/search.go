@@ -86,7 +86,7 @@ func (b Browser) showSearch() {
 
 					s.ShowCursor(len(header[len(header)-1]), len(header)-1)
 				} else {
-					b.Log.Trace("query length limit reached")
+					b.Log.Traceln("query length limit reached")
 				}
 			}
 			if ev.Key() == tcell.KeyBackspace || ev.Key() == tcell.KeyBackspace2 {
