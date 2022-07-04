@@ -177,7 +177,7 @@ func (b Browser) browseSeasons() error {
 // It defines the data for the Page based on the requested page and amount of results to display.
 func (b Browser) getSeasonResults(page int, results int) cli.Page {
 	startIndex := results * (page - 1)
-	if startIndex < 0 || startIndex > len(b.Show.Details.Seasons) {
+	if startIndex < 0 || startIndex >= len(b.Show.Details.Seasons) {
 		return b.Show.Season.Page
 	}
 	endIndex := startIndex + results - 1

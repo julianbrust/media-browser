@@ -147,7 +147,7 @@ func (b Browser) getEpisodeResults(page int, results int) cli.Page {
 	b.Log.Traceln("start getEpisodeResults")
 
 	startIndex := results * (page - 1)
-	if startIndex < 0 || startIndex > len(b.Show.Season.Details.Episodes) {
+	if startIndex < 0 || startIndex >= len(b.Show.Season.Details.Episodes) {
 		return b.Show.Season.Episode.Page
 	}
 	endIndex := startIndex + results - 1
