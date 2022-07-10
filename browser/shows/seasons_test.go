@@ -65,13 +65,13 @@ func TestGetSeasonResults(t *testing.T) {
 	}
 	b.Show.Details.Seasons = season.Seasons
 
-	page := b.getSeasonResults(1, 3)
+	b.getSeasonResults(1, 3)
 
-	if page.Current != 1 {
-		t.Errorf("Expected season result index '1', got %v", page.Current)
+	if b.Show.Season.Page.Current != 1 {
+		t.Errorf("Expected season result index '1', got %v", b.Show.Season.Page.Current)
 	}
-	if len(page.Content) != 3 {
-		t.Errorf("Expected content amount '3', got %v", len(page.Content))
+	if len(b.Show.Season.Page.Content) != 3 {
+		t.Errorf("Expected content amount '3', got %v", len(b.Show.Season.Page.Content))
 	}
 }
 

@@ -30,13 +30,13 @@ func TestGetEpisodeResults(t *testing.T) {
 	}
 	b.Show.Season.Details.Episodes = season.Episodes
 
-	page := b.getEpisodeResults(1, 3)
+	b.getEpisodeResults(1, 3)
 
-	if page.Current != 1 {
-		t.Errorf("Expected episode result index '1', got %v", page.Current)
+	if b.Show.Season.Episode.Page.Current != 1 {
+		t.Errorf("Expected episode result index '1', got %v", b.Show.Season.Episode.Page.Current)
 	}
-	if len(page.Content) != 3 {
-		t.Errorf("Expected content amount '3', got %v", len(page.Content))
+	if len(b.Show.Season.Episode.Page.Content) != 3 {
+		t.Errorf("Expected content amount '3', got %v", len(b.Show.Season.Episode.Page.Content))
 	}
 }
 
@@ -72,9 +72,9 @@ func TestGetCurrentEpisode(t *testing.T) {
 		},
 	}
 
-	episode := b.getCurrentEpisode()
+	b.getCurrentEpisode()
 
-	if episode.Details.ID != 62086 {
-		t.Errorf("Expected episode id '62086', got %v", episode.ID)
+	if b.Show.Season.Episode.Details.ID != 62086 {
+		t.Errorf("Expected episode id '62086', got %v", b.Show.Season.Episode.ID)
 	}
 }

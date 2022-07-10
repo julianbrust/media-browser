@@ -11,10 +11,7 @@ func Init(level *string) *logrus.Logger {
 	file := "/tmp/media-browser.log"
 	log = logrus.New()
 
-	err := os.Remove(file)
-	if err != nil {
-		log.Fatal(err)
-	}
+	_ = os.Remove(file)
 
 	logFile, err := os.OpenFile(file, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {

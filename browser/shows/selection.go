@@ -9,7 +9,7 @@ import (
 )
 
 // showSelection starts and handles the CLI screen for displaying the current selection.
-func (b Browser) showSelection() error {
+func (b *Browser) showSelection() error {
 	b.Log.Traceln("starting showSelection")
 
 	s, defStyle := cli.SetupScreen()
@@ -65,7 +65,7 @@ func (b Browser) showSelection() error {
 }
 
 // getSelection combines all the information about the current selection in lines to display.
-func (b Browser) getSelection(header []string) []string {
+func (b *Browser) getSelection(header []string) []string {
 	b.Log.Traceln("start getSelection")
 
 	showName := b.Show.Details.Name

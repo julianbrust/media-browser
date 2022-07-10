@@ -8,7 +8,7 @@ import (
 )
 
 // showSearch starts and handles the CLI screen for typing a search.
-func (b Browser) showSearch() {
+func (b *Browser) showSearch() {
 	b.Log.Traceln("starting showSearch")
 
 	s, defStyle := cli.SetupScreen()
@@ -54,7 +54,7 @@ func (b Browser) showSearch() {
 				b.Search = []tmdb.Show{}
 				var err error
 
-				b.Search, b.Show.Page, err = b.getSearchResults(1, 10)
+				err = b.getSearchResults(1, 10)
 				if err != nil {
 					b.Log.Trace(err)
 					text = cli.BuildErrorScreen(header, err.Error())
