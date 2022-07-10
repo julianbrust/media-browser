@@ -8,7 +8,7 @@ import (
 )
 
 // browseEpisodes starts and handles the CLI screen for browsing episodes.
-func (b Browser) browseEpisodes() error {
+func (b *Browser) browseEpisodes() error {
 	b.Log.Traceln("starting browseEpisodes")
 
 	s, defStyle := cli.SetupScreen()
@@ -22,7 +22,7 @@ func (b Browser) browseEpisodes() error {
 		"[↓→↑←: Navigate | ENTER: Confirm | ESC: Back | CTRL+C: Quit]",
 		"Browse Episodes:",
 	}
-	b.Show.Season.Episode.Page = b.getEpisodeResults(b.Show.Season.Episode.Page.Current, b.Show.Season.Episode.Page.Results)
+	b.getEpisodeResults(b.Show.Season.Episode.Page.Current, b.Show.Season.Episode.Page.Results)
 
 	text := cli.BuildScreen(
 		b.Show.Season.Episode.Page, b.Show.Season.Episode.Index, header, b.Show.Season.Episode.Page.Content, true)
@@ -64,7 +64,7 @@ func (b Browser) browseEpisodes() error {
 			if ev.Key() == tcell.KeyEnter {
 				b.Log.Traceln("select episode")
 
-				b.Show.Season.Episode = b.getCurrentEpisode()
+				b.getCurrentEpisode()
 
 				s.Fini()
 				err := b.showSelection()
@@ -83,8 +83,7 @@ func (b Browser) browseEpisodes() error {
 					b.Show.Season.Episode.Index++
 				}
 
-				b.Show.Season.Episode.Page = b.getEpisodeResults(
-					b.Show.Season.Episode.Page.Current, b.Show.Season.Episode.Page.Results)
+				b.getEpisodeResults(b.Show.Season.Episode.Page.Current, b.Show.Season.Episode.Page.Results)
 
 				text = cli.BuildScreen(
 					b.Show.Season.Episode.Page, b.Show.Season.Episode.Index, header, b.Show.Season.Episode.Page.Content, true)
@@ -99,8 +98,7 @@ func (b Browser) browseEpisodes() error {
 					b.Show.Season.Episode.Index--
 				}
 
-				b.Show.Season.Episode.Page = b.getEpisodeResults(
-					b.Show.Season.Episode.Page.Current, b.Show.Season.Episode.Page.Results)
+				b.getEpisodeResults(b.Show.Season.Episode.Page.Current, b.Show.Season.Episode.Page.Results)
 
 				text = cli.BuildScreen(
 					b.Show.Season.Episode.Page, b.Show.Season.Episode.Index, header, b.Show.Season.Episode.Page.Content, true)
@@ -111,8 +109,7 @@ func (b Browser) browseEpisodes() error {
 			if ev.Key() == tcell.KeyRight {
 				b.Log.Traceln("episodes: key right")
 
-				b.Show.Season.Episode.Page = b.getEpisodeResults(
-					b.Show.Season.Episode.Page.Current+1, b.Show.Season.Episode.Page.Results)
+				b.getEpisodeResults(b.Show.Season.Episode.Page.Current+1, b.Show.Season.Episode.Page.Results)
 
 				if b.Show.Season.Episode.Index > len(b.Show.Season.Episode.Page.Content)-1 {
 					b.Show.Season.Episode.Index = len(b.Show.Season.Episode.Page.Content) - 1
@@ -127,8 +124,7 @@ func (b Browser) browseEpisodes() error {
 			if ev.Key() == tcell.KeyLeft {
 				b.Log.Traceln("episodes: key left")
 
-				b.Show.Season.Episode.Page = b.getEpisodeResults(
-					b.Show.Season.Episode.Page.Current-1, b.Show.Season.Episode.Page.Results)
+				b.getEpisodeResults(b.Show.Season.Episode.Page.Current-1, b.Show.Season.Episode.Page.Results)
 
 				text = cli.BuildScreen(
 					b.Show.Season.Episode.Page, b.Show.Season.Episode.Index, header, b.Show.Season.Episode.Page.Content, true)
@@ -143,12 +139,12 @@ func (b Browser) browseEpisodes() error {
 // getEpisodeResults provides the requested selection of results in a cli.Page. It updates the
 // requested data of the previous epPage with data from all available episodes based on the requested
 // page and number of results per page.
-func (b Browser) getEpisodeResults(page int, results int) cli.Page {
+func (b *Browser) getEpisodeResults(page int, results int) {
 	b.Log.Traceln("start getEpisodeResults")
 
 	startIndex := results * (page - 1)
 	if startIndex < 0 || startIndex >= len(b.Show.Season.Details.Episodes) {
-		return b.Show.Season.Episode.Page
+		return
 	}
 	endIndex := startIndex + results - 1
 	if endIndex > len(b.Show.Season.Details.Episodes) {
@@ -168,7 +164,7 @@ func (b Browser) getEpisodeResults(page int, results int) cli.Page {
 
 	maxTabs := math.Ceil(float64(len(b.Show.Season.Details.Episodes)) / float64(results))
 
-	return cli.Page{
+	b.Show.Season.Episode.Page = cli.Page{
 		Current: page,
 		Total:   int(maxTabs),
 		Results: results,
@@ -178,7 +174,7 @@ func (b Browser) getEpisodeResults(page int, results int) cli.Page {
 
 // getCurrentEpisode updates the current Episode details from the requested episode in the list of
 // available episodes.
-func (b Browser) getCurrentEpisode() Episode {
+func (b *Browser) getCurrentEpisode() {
 	b.Log.Traceln("start getCurrentEpisode")
 
 	for _, ep := range b.Show.Season.Details.Episodes {
@@ -186,6 +182,4 @@ func (b Browser) getCurrentEpisode() Episode {
 			b.Show.Season.Episode.Details = ep
 		}
 	}
-
-	return b.Show.Season.Episode
 }

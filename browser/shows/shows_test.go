@@ -105,23 +105,23 @@ func TestGetSearchResults(t *testing.T) {
 	b.Config.Library.Settings.AdultContent = false
 	b.Config.Library.Settings.Language = "en-US"
 
-	shows, page, err := b.getSearchResults(1, 5)
+	err = b.getSearchResults(1, 5)
 	if err != nil {
 		t.Error(err)
 	}
 
-	if len(shows) > 0 && len(shows[0].Results) > 0 {
-		if shows[0].Results[0].ID != 1396 {
-			t.Errorf("Expected show ID '1396', got %v", shows[0].Results[0].ID)
+	if len(b.Search) > 0 && len(b.Search[0].Results) > 0 {
+		if b.Search[0].Results[0].ID != 1396 {
+			t.Errorf("Expected show ID '1396', got %v", b.Search[0].Results[0].ID)
 		}
 	} else {
 		t.Error("Expected show result, got none")
 	}
-	if page.Current != 1 {
-		t.Errorf("Expected current page '1', got %v", page.Current)
+	if b.Show.Page.Current != 1 {
+		t.Errorf("Expected current page '1', got %v", b.Show.Page.Current)
 	}
-	if page.Total != 1 {
-		t.Errorf("Expected total pages '1', got %v", page.Total)
+	if b.Show.Page.Total != 1 {
+		t.Errorf("Expected total pages '1', got %v", b.Show.Page.Total)
 	}
 }
 
@@ -148,23 +148,23 @@ func TestGetMissingSearchData(t *testing.T) {
 	b.Config.Library.Settings.AdultContent = false
 	b.Config.Library.Settings.Language = "en-US"
 
-	shows, page, err := b.getSearchResults(1, 5)
+	err = b.getSearchResults(1, 5)
 	if err != nil {
 		t.Error(err)
 	}
 
-	if len(shows) > 0 && len(shows[0].Results) > 0 {
-		if shows[0].Results[0].ID != 1396 {
-			t.Errorf("Expected show ID '1396', got %v", shows[0].Results[0].ID)
+	if len(b.Search) > 0 && len(b.Search[0].Results) > 0 {
+		if b.Search[0].Results[0].ID != 1396 {
+			t.Errorf("Expected show ID '1396', got %v", b.Search[0].Results[0].ID)
 		}
 	} else {
 		t.Error("Expected show result, got none")
 	}
-	if page.Current != 1 {
-		t.Errorf("Expected current page '1', got %v", page.Current)
+	if b.Show.Page.Current != 1 {
+		t.Errorf("Expected current page '1', got %v", b.Show.Page.Current)
 	}
-	if page.Total != 1 {
-		t.Errorf("Expected total pages '1', got %v", page.Total)
+	if b.Show.Page.Total != 1 {
+		t.Errorf("Expected total pages '1', got %v", b.Show.Page.Total)
 	}
 }
 
@@ -197,12 +197,12 @@ func TestFilterSelectedData(t *testing.T) {
 
 	b.Search = append(b.Search, result)
 
-	page := b.filterSelectedData(1, 5, 0, 2)
+	b.filterSelectedData(1, 5, 0, 2)
 
-	if page.Current != 1 {
-		t.Errorf("Expected current page '1', got %v", page.Current)
+	if b.Show.Page.Current != 1 {
+		t.Errorf("Expected current page '1', got %v", b.Show.Page.Current)
 	}
-	if page.Total != 1 {
-		t.Errorf("Expected total pages '1', got %v", page.Total)
+	if b.Show.Page.Total != 1 {
+		t.Errorf("Expected total pages '1', got %v", b.Show.Page.Total)
 	}
 }
